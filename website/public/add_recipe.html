@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Recipe</title>
+    <link rel="stylesheet" href="styles_add_recipe.css">
+    <script src="script_add_recipe.js" defer></script>
+</head>
+<body>
+    <h1>Dining Holl</h1>
+    <p>Please enter your recipe to add it to the database!</p>
+    <form id="add-recipe-form">
+        <div>
+            <label for="title">Recipe Title</label>
+            <input type="text" id="title" name="title" required />
+        </div>
+
+        <div>
+            <label for="instructions">Instructions</label>
+            <textarea id="instructions" name="instructions" rows="4" 
+                      placeholder="please enter in format 1. step; 2. step with the ';' symbol separating steps" required></textarea>
+        </div>
+
+        <div>
+            <label for="prepTime">Preparation Time</label>
+            <input type="number" id="prepTime" name="prepTime" placeholder="in minutes" required />
+        </div>
+
+        <div>
+            <label for="cookTime">Cook Time</label>
+            <input type="number" id="cookTime" name="cookTime" placeholder="in minutes" required />
+        </div>
+
+        <!-- Meal Type Section -->
+        <div>
+            <label>Meal Type</label>
+            <div class="checkbox-group">
+                <div class="checkbox-item">
+                    <input type="checkbox" id="breakfast" name="mealTypes[breakfast]" value="1" />
+                    <label for="breakfast">Breakfast</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="lunch" name="mealTypes[lunch]" value="1" />
+                    <label for="lunch">Lunch</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="dinner" name="mealTypes[dinner]" value="1" />
+                    <label for="dinner">Dinner</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Equipment Section (Dynamically Loaded) -->
+        <div id="equipment-fields">
+            <label>Equipment</label>
+            <!-- Dynamically added checkboxes for equipment will go here -->
+        </div>
+
+        <!-- Ingredients Section (Dynamically Loaded) -->
+        <div id="ingredient-fields">
+            <label>Ingredients</label>
+            <!-- Dynamically added ingredient fields will go here -->
+        </div>
+
+        <button type="button" id="add-ingredient">Add Ingredient</button>
+
+        <button type="submit">Submit Recipe</button>
+    </form>
+
+    <div id="success-message" style="display: none;">Recipe added successfully!</div>
+</body>
+</html>

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Dining Holl</title>
+        <link rel="stylesheet" href="styles_register_page.css" />
+        <script src="script_register.js"></script>
+    </head>
+    <body>
+        <h1 class="title">Dinning Holl</h1>
+        <p>Register Page</p>
+        <form onsubmit="handleFormSubmission(event)">
+            <fieldset>
+                <label for="email">E-mail:
+                    <input id="email" placeholder="email" type="email"/>
+                </label>
+                <label for="password">Password:
+                    <input id="password" placeholder="password" type="password"/>
+                </label>
+                <label for="confirm-password">Confirm Password:
+                    <input id="confirm-password" placeholder="confirm password" type="password"/>
+                </label>
+                <input type="submit" value="Submit" />
+            </fieldset>
+        </form>
+    </body>
+</html>

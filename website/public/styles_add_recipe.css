@@ -1,0 +1,86 @@
+body {
+    background-color: black;
+    color: white;   
+    font-family: Arial;
+}
+
+h1, p {
+    text-align: center;
+}
+
+/* General styling for the entire form */
+form {
+    display: flex;
+    flex-direction: column;
+    margin: 5%;
+    padding: 5%;
+}
+
+/* Styling for each form field */
+label {
+    font-weight: bold;
+    margin-bottom: 5px;
+    text-align: left;
+}
+
+/* Styling for text inputs, selects, and textareas */
+input[type="text"], 
+input[type="number"], 
+textarea, 
+select {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 15px;
+    box-sizing: border-box; /* Ensures padding doesn't affect width */
+}
+
+/* Optional: Add some margin to the overall form elements */
+form > div {
+    margin-bottom: 20px;
+}
+
+/* Checkbox items styling */
+.checkbox-item {
+    gap: 10px; /* Adds space between checkbox and label */
+}
+
+/* Specifically target checkboxes */
+.checkbox-item input[type="checkbox"] {
+    width: auto; /* Ensures checkboxes don't take full width */
+    margin: 0; /* Removes unnecessary margins */
+}
+
+/* Optional: Style the submit button */
+/* Ensure the submit button is styled properly */
+button[type="submit"], 
+input[type="submit"] {
+    display: block;
+    width: 50%;
+    margin: 20px auto; /* Center horizontally and add spacing */
+    border-color: white;
+    padding: 10px; /* Add some padding for better appearance */
+}
+
+/* Add spacing between the form and submit button */
+form > button[type="submit"], 
+form > input[type="submit"] {
+    margin-top: 30px; /* Creates more space between form fields and the submit button */
+}
+
+.ingredient-entry {
+    display: flex;
+    align-items: center;
+    gap: 4px; /* Adjust spacing between elements */
+    margin-bottom: 5px; /* Space between ingredient rows */
+}
+
+.remove-ingredient {
+    background-color: red;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.remove-ingredient:hover {
+    background-color: darkred;
+}

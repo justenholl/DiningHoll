@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Recipes</title>
+    <link rel="stylesheet" href="styles_recipes.css" />
+    <script src="script_recipes.js" defer></script>
+</head>
+<body>
+    <header>
+        <button onclick="window.location.href='dashboard.html'">Dashboard</button>
+        <button onclick="window.location.href='equipment.html'">Equipment</button>
+        <button onclick="window.location.href='generate.html'">Generate</button>
+    </header>
+    <h1 class="title">Dining Hall</h1>
+    <p id="preferences-header">Preferences for: username</p> <!-- Dynamically updated with the logged-in user -->
+
+    <div id="meal-preferences">
+        <p id="meal-info">Loading your meal preferences...</p>
+    </div>
+
+    <div id="recipes-list">
+        <h2>Recipes</h2>
+        <p>Loading recipes...</p>
+    </div>
+    
+    <div id="shopping-list">
+        <h2>Shopping List</h2>
+        <p>Loading shopping list...</p>
+    </div>
+
+    <!-- Email Button -->
+    <button id="email-button" onclick="sendEmail()">Email</button>
+
+</body>
+</html>

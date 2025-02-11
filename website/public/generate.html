@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Weekly Meal Preferences</title>
+    <link rel="stylesheet" href="styles_generate.css" />
+    <script src="script_generate.js" defer></script>
+</head>
+<body>
+    <header>
+        <button onclick="window.location.href='dashboard.html'">Dashboard</button>
+        <button onclick="window.location.href='equipment.html'">Equipment</button>
+        <button onclick="window.location.href='generate.html'">Generate</button>
+    </header>
+    
+    <h1 class="title">Dining Holl</h1>
+    <p id="mealcounts-header">Weakly Meal Counts for: username</p> <!-- Dynamically updated with the logged-in user -->
+
+    <form id="meal-preferences-form">
+        <fieldset>
+            <div>
+                <input type="number" id="breakfast" name="breakfast" min="0" max="7" value="0">
+                <label for="breakfast">Breakfasts</label>
+            </div>
+            
+            <div>
+                <input type="number" id="lunch" name="lunch" min="0" max="7" value="0">
+                <label for="lunch">Lunches</label>
+            </div>
+            
+            <div>
+                <input type="number" id="dinner" name="dinner" min="0" max="7" value="0">
+                <label for="dinner">Dinners</label>
+            </div>
+            
+            <input type="submit" value="Customize">
+        </fieldset>
+    </form>
+</body>
+</html>

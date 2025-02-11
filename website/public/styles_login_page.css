@@ -1,0 +1,64 @@
+body {
+    background-color: black;
+    color: white;   
+    font-family: Arial;
+}
+
+h1, p {
+    text-align: center;
+}
+
+form {
+    width: 60vw;
+    max-width: 500px;
+    min-width: 300px;
+    margin: 0 auto;
+    padding-bottom: 0;
+}   
+
+fieldset {
+    border: none;
+    padding: 2rem 0;
+}
+
+label {
+    display: block;
+    margin: 1rem 0;
+}
+
+.new-user {
+    width: 60vw;
+    max-width: 500px;
+    min-width: 300px;
+    margin: 0 auto;
+}
+
+input {
+    width: 100%;
+}
+
+input[type="submit"] {
+    display: block;
+    width: 30%;
+    margin: 1em auto;
+    font-size: 1.1rem;
+    border-color: white;
+    min-width: 30px;
+}
+
+#new-user-link:link {
+    color: lightblue; /* Color when the link is not clicked */
+}
+
+#new-user-link:visited {
+    color: grey; /* Color when the link is clicked */
+}
+
+/* Optional: Add hover and focus styles for better interaction */
+#new-user-link:hover {
+    color: darkblue; /* Color on hover */
+}
+
+#new-user-link:focus {
+    outline: 2px solid white; /* Highlight when focused */
+}

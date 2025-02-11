@@ -1,0 +1,35 @@
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    padding: 20px;
+    background-color: black;
+    color: white;
+}
+
+form {
+    width: 60vw;
+    max-width: 500px;
+    min-width: 300px;
+    margin: 0 auto;
+    padding-bottom: 0;
+    text-align: left;
+}  
+
+fieldset {
+    border: none;
+}
+
+label {
+    display: block;
+    font-size: 1rem;
+    margin: 5px 0;
+}
+
+input[type="submit"] {
+    display: block;
+    width: 30%;
+    margin: 1em auto;
+    font-size: 1.1rem;
+    border-color: white;
+    min-width: 30px;
+}

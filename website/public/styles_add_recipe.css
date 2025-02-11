@@ -4,6 +4,10 @@ body {
     font-family: Arial;
 }
 
+header {
+    text-align: center;
+}
+
 h1, p {
     text-align: center;
 }

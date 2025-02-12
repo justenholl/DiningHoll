@@ -3,7 +3,7 @@ const loggedInUser = localStorage.getItem("loggedInUser");
 
 if (loggedInUser) {
     // Fetch the user's meal preferences from the backend
-    fetch(`http://localhost:3000/get-meal-preferences?username=${loggedInUser}`)
+    fetch(`{API_BASE_URL}/get-meal-preferences?username=${loggedInUser}`)
         .then((response) => response.json())
         .then((data) => {
             if (data.success) {
@@ -35,7 +35,7 @@ else {
 // Function to fetch and display recipes and shopping list
 function displayRecipes(breakfast, lunch, dinner) {
     console.log("Sending parameters:", { breakfast, lunch, dinner }); // Debugging
-    fetch(`http://localhost:3000/get-recipes?breakfast=${breakfast}&lunch=${lunch}&dinner=${dinner}`)
+    fetch(`{API_BASE_URL}/get-recipes?breakfast=${breakfast}&lunch=${lunch}&dinner=${dinner}`)
         .then((response) => response.json())
         .then((data) => {
             console.log("Fetched data:", data);
@@ -122,7 +122,7 @@ async function sendEmail() {
             shoppingList.push(item.innerText);
         });
 
-        const response = await fetch("http://localhost:3000/send-email", {
+        const response = await fetch("{API_BASE_URL}/send-email", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"

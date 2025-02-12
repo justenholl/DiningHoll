@@ -17,7 +17,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     try {
         // Fetch available equipment
-        const equipmentResponse = await fetch("http://localhost:3000/get-equipment");
+        const equipmentResponse = await fetch("{API_BASE_URL}/get-equipment");
         const equipmentData = await equipmentResponse.json();
 
         if (equipmentData.success && equipmentData.equipment.length > 0) {
@@ -32,7 +32,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             });
 
             // Fetch user preferences and update checkboxes
-            const preferencesResponse = await fetch(`http://localhost:3000/get-preferences?username=${username}`);
+            const preferencesResponse = await fetch(`{API_BASE_URL}/get-preferences?username=${username}`);
             const preferencesData = await preferencesResponse.json();
 
             if (preferencesData.success) {
@@ -68,7 +68,7 @@ document.getElementById("equipment-form").addEventListener("submit", (event) => 
 
     // Send the preferences to the server
     const username = localStorage.getItem("loggedInUser");
-    fetch("http://localhost:3000/save-preferences", {
+    fetch("{API_BASE_URL}/save-preferences", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, preferences: selectedEquipment }),

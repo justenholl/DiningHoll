@@ -26,7 +26,7 @@ document.getElementById("meal-preferences-form").addEventListener("submit", asyn
     }
 
     // Simulate saving data to the server (or localStorage)
-    const response = await fetch("http://localhost:3000/save-meal-preferences", {
+    const response = await fetch("{API_BASE_URL}/save-meal-preferences", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -53,7 +53,7 @@ document.getElementById("meal-preferences-form").addEventListener("submit", asyn
 
 // Pre-fill the dropdowns with existing preferences
 document.addEventListener("DOMContentLoaded", async () => {
-    const response = await fetch(`http://localhost:3000/get-meal-preferences?username=${loggedInUser}`);
+    const response = await fetch(`{API_BASE_URL}/get-meal-preferences?username=${loggedInUser}`);
     const data = await response.json();
 
     if (data.success) {

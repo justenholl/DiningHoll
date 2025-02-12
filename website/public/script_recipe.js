@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     try {
-        const response = await fetch(`http://localhost:3000/get-recipe?id=${recipeId}`);
+        const response = await fetch(`{API_BASE_URL}/get-recipe?id=${recipeId}`);
         const data = await response.json();
 
         if (data.success) {

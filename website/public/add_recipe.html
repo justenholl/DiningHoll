@@ -6,14 +6,15 @@
     <title>Add Recipe</title>
     <link rel="stylesheet" href="styles_add_recipe.css">
     <script src="config.js"></script> <!-- Needs to load before the other script -->
+    <script src="navigation.js"></script> <!-- Needs to load before the other script -->
     <script src="script_add_recipe.js" defer></script>
 </head>
 <body>
     <header>
-        <button onclick="window.location.href='dashboard.html'">Dashboard</button>
-        <button onclick="window.location.href='equipment.html'">Equipment</button>
-        <button onclick="window.location.href='generate.html'">Generate</button>
-        <button onclick="window.location.href='add_recipe.html'">Add Recipe</button>
+        <button data-page="dashboard.html">Dashboard</button>
+        <button data-page="equipment.html">Equipment</button>
+        <button data-page="generate.html">Generate</button>
+        <button data-page="add_recipe.html">Add Recipe</button>
     </header>
     <h1>Dining Holl</h1>
     <p>Please enter your recipe to add it to the database!</p>

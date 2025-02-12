@@ -26,7 +26,7 @@ document.getElementById("meal-preferences-form").addEventListener("submit", asyn
     }
 
     // Simulate saving data to the server (or localStorage)
-    const response = await fetch("{API_BASE_URL}/save-meal-preferences", {
+    const response = await fetch(`{API_BASE_URL}/save-meal-preferences`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",

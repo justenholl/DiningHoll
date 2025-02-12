@@ -17,7 +17,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     try {
         // Fetch available equipment
-        const equipmentResponse = await fetch("{API_BASE_URL}/get-equipment");
+        const equipmentResponse = await fetch(`{API_BASE_URL}/get-equipment`);
         const equipmentData = await equipmentResponse.json();
 
         if (equipmentData.success && equipmentData.equipment.length > 0) {
@@ -68,7 +68,7 @@ document.getElementById("equipment-form").addEventListener("submit", (event) => 
 
     // Send the preferences to the server
     const username = localStorage.getItem("loggedInUser");
-    fetch("{API_BASE_URL}/save-preferences", {
+    fetch(`{API_BASE_URL}/save-preferences`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, preferences: selectedEquipment }),

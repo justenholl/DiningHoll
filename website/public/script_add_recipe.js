@@ -29,7 +29,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     // Fetch available equipment from the database
     async function fetchEquipment() {
         try {
-            const response = await fetch("{API_BASE_URL}/get-equipment");
+            const response = await fetch(`{API_BASE_URL}/get-equipment`);
             const data = await response.json();
 
             console.log("Equipment API Response:", data); // Debugging log
@@ -134,7 +134,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         console.log("Form Data Being Sent:", formData);
 
         // Send data to the server
-        fetch("{API_BASE_URL}/add-recipe", {
+        fetch(`{API_BASE_URL}/add-recipe`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(formData),

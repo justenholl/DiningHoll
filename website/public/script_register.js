@@ -11,7 +11,7 @@ async function handleFormSubmission(event) {
     }
 
     // Send the data to the server
-    const response = await fetch("{API_BASE_URL}/register", {
+    const response = await fetch(`{API_BASE_URL}/register`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",

@@ -122,7 +122,7 @@ async function sendEmail() {
             shoppingList.push(item.innerText);
         });
 
-        const response = await fetch("{API_BASE_URL}/send-email", {
+        const response = await fetch(`{API_BASE_URL}/send-email`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"

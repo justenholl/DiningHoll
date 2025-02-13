@@ -9,14 +9,19 @@ const port = 3000;
 
 // Middleware
 app.use(express.json());
-app.use(cors()); 
+app.use(cors({
+    origin: ["https://justenholl.github.io"], // Allow requests from GitHub Pages
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true 
+}));
 
 // MySQL Connection Pool (callback-based)
 const db = mysql.createPool({
-    host: "localhost",
-    user: "root",
-    password: "",
-    database: "recipes_db",
+    host: 'monorail.proxy.rlwy.net',  // use the provided host
+    user: 'root',                     // your MYSQLUSER
+    password: 'txWOqacViRbQiGezjJiIaiqapiClhvwG', // your MYSQLPASSWORD
+    database: 'railway',              // your MYSQLDATABASE (usually 'railway' if not specific)
+    port: 28041,                      // your MYSQLPORT
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0

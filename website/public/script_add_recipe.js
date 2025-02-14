@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     // Fetch unique ingredients from the database
     async function fetchIngredients() {
         try {
-            const response = await fetch("http://localhost:3000/get-ingredients");
+            const response = await fetch(`${API_BASE_URL}/get-ingredients`);
             const data = await response.json();
 
             if (data.success && data.ingredients.length > 0) {

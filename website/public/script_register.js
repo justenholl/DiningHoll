@@ -26,7 +26,7 @@ async function handleFormSubmission(event) {
     if (data.success) {
         alert("Registration successful!");
         // Redirect to login page
-        window.location.href = `${BASE_URL}/index`;
+        window.location.href = `${API_BASE_URL}/index`;
     } else {
         alert(data.message);
     }

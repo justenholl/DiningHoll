@@ -5,64 +5,112 @@ const loggedInUser = localStorage.getItem("loggedInUser");
 if (loggedInUser) {
     document.getElementById("mealcounts-header").innerText = `Preferences for: ${loggedInUser}`;
 } else {
-    // Redirect to login page if no user is logged in
     alert("Please log in first.");
     window.location.href = "login_page.html";
 }
 
+// Function to fetch the user's saved equipment preferences
+async function fetchUserEquipment() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/get-preferences?username=${loggedInUser}`);
+        const data = await response.json();
+
+        if (data.success) {
+            return data.preferences || []; // Return array of equipment names
+        } else {
+            console.error("Failed to fetch user equipment.");
+            return [];
+        }
+    } catch (error) {
+        console.error("Error fetching user equipment:", error);
+        return [];
+    }
+}
+
+// Function to fetch viable recipes based on meal preferences and available equipment
+async function fetchViableRecipes(breakfastCount, lunchCount, dinnerCount, userEquipment) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/get-recipes`);
+        const data = await response.json();
+
+        if (!data.success || !Array.isArray(data.recipes)) {
+            console.error("Failed to fetch recipes.");
+            return [];
+        }
+
+        const recipes = data.recipes;
+
+        // Fetch required equipment for each recipe
+        const recipeEquipmentResponse = await fetch(`${API_BASE_URL}/get-recipe-equipment`);
+        const recipeEquipmentData = await recipeEquipmentResponse.json();
+
+        if (!recipeEquipmentData.success || !Array.isArray(recipeEquipmentData.recipe_equipment)) {
+            console.error("Failed to fetch recipe equipment.");
+            return [];
+        }
+
+        const recipeEquipmentMap = {}; // Map recipe_id -> required equipment list
+        recipeEquipmentData.recipe_equipment.forEach((entry) => {
+            if (!recipeEquipmentMap[entry.recipe_id]) {
+                recipeEquipmentMap[entry.recipe_id] = [];
+            }
+            recipeEquipmentMap[entry.recipe_id].push(entry.equipment_name);
+        });
+
+        // Filter recipes that match the meal type and user's equipment
+        const viableRecipes = recipes.filter((recipe) => {
+            const requiredEquipment = recipeEquipmentMap[recipe.id] || [];
+            return (
+                requiredEquipment.every((eq) => userEquipment.includes(eq)) && // User has all required equipment
+                ((breakfastCount > 0 && recipe.breakfast_bool) ||
+                 (lunchCount > 0 && recipe.lunch_bool) ||
+                 (dinnerCount > 0 && recipe.dinner_bool))
+            );
+        });
+
+        return viableRecipes;
+    } catch (error) {
+        console.error("Error fetching viable recipes:", error);
+        return [];
+    }
+}
+
 // Handle form submission
 document.getElementById("meal-preferences-form").addEventListener("submit", async (event) => {
-    event.preventDefault(); // Prevent the form from submitting traditionally
+    event.preventDefault();
 
-    // Get selected values from dropdowns and convert to numbers
     const breakfastCount = parseInt(document.getElementById("breakfast").value, 10);
     const lunchCount = parseInt(document.getElementById("lunch").value, 10);
     const dinnerCount = parseInt(document.getElementById("dinner").value, 10);
-    
-     // Check if the values are valid integers
+
     if (isNaN(breakfastCount) || isNaN(lunchCount) || isNaN(dinnerCount)) {
         alert("Invalid input values.");
         return;
     }
 
-    // Simulate saving data to the server (or localStorage)
-    const response = await fetch(`${API_BASE_URL}/save-meal-preferences`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-            username: loggedInUser,
-            preferences: {
-                breakfast: breakfastCount,
-                lunch: lunchCount,
-                dinner: dinnerCount,
-            },
-        }),
-    });
+    // Fetch user's saved equipment
+    const userEquipment = await fetchUserEquipment();
 
-    const data = await response.json();
+    // Fetch viable recipes based on equipment and meal preferences
+    const viableRecipes = await fetchViableRecipes(breakfastCount, lunchCount, dinnerCount, userEquipment);
 
-    if (data.success) {
-        alert("Preferences updated successfully!");
-        window.location.href = "recipes.html"; // Redirect to recipes.html
+    if (viableRecipes.length > 0) {
+        localStorage.setItem("filteredRecipes", JSON.stringify(viableRecipes));
+        window.location.href = "recipes.html";
     } else {
-        alert("Failed to update preferences.");
+        alert("No recipes available that match your meal preferences and equipment.");
     }
 });
 
-// Pre-fill the dropdowns with existing preferences
+// Pre-fill the dropdowns with existing meal preferences
 document.addEventListener("DOMContentLoaded", async () => {
     const response = await fetch(`${API_BASE_URL}/get-meal-preferences?username=${loggedInUser}`);
     const data = await response.json();
 
     if (data.success) {
-        const { breakfast, lunch, dinner } = data.preferences;
-
-        // Set the dropdowns to the saved values
-        document.getElementById("breakfast").value = breakfast;
-        document.getElementById("lunch").value = lunch;
-        document.getElementById("dinner").value = dinner;
+        document.getElementById("breakfast").value = data.preferences.breakfast;
+        document.getElementById("lunch").value = data.preferences.lunch;
+        document.getElementById("dinner").value = data.preferences.dinner;
     } else {
         console.error("Failed to fetch meal preferences.");
     }

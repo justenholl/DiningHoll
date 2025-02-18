@@ -54,7 +54,29 @@ form > div {
     margin: 0; /* Removes unnecessary margins */
 }
 
-/* Optional: Style the submit button */
+/* Instructions entry styling (same as ingredients) */
+.instruction-entry {
+    display: flex;
+    align-items: center;
+    gap: 4px; /* Adjust spacing between elements */
+    margin-bottom: 5px; /* Space between instruction rows */
+}
+
+/* Numbering stays aligned with input */
+.instruction-entry span {
+    font-weight: bold;
+}
+
+/* Instruction input field styling */
+.instruction-entry input[type="text"] {
+    padding: 4px;
+}
+
+/* Make "Add Instruction" button match form width */
+#add-instruction {
+    width: 100%;
+}
+
 /* Ensure the submit button is styled properly */
 button[type="submit"], 
 input[type="submit"] {
@@ -78,13 +100,13 @@ form > input[type="submit"] {
     margin-bottom: 5px; /* Space between ingredient rows */
 }
 
-.remove-ingredient {
+.remove-ingredient, .remove-instruction {
     background-color: red;
     color: white;
     border: none;
     cursor: pointer;
 }
 
-.remove-ingredient:hover {
+.remove-ingredient, .remove-instruction:hover {
     background-color: darkred;
 }

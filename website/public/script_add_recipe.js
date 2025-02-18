@@ -4,59 +4,41 @@ document.addEventListener("DOMContentLoaded", async function () {
     const ingredientFields = document.getElementById("ingredient-fields");
     const addIngredientButton = document.getElementById("add-ingredient");
     const equipmentFields = document.getElementById("equipment-fields");
+    const instructionFields = document.getElementById("instructions-list");
+    const addInstructionButton = document.getElementById("add-instruction");
     const formElement = document.getElementById("add-recipe-form");
 
     const availableUnits = ["cup", "tablespoon", "teaspoon", "whole", "grams", "milliliters", "ounces"];
 
-    // Fetch unique ingredients from the database
     async function fetchIngredients() {
         try {
             const response = await fetch(`${API_BASE_URL}/get-ingredients`);
             const data = await response.json();
-
-            if (data.success && data.ingredients.length > 0) {
-                return data.ingredients; // Returns an array of ingredient names
-            } else {
-                console.error("No ingredients found.");
-                return [];
-            }
+            return data.success && data.ingredients.length > 0 ? data.ingredients : [];
         } catch (error) {
             console.error("Error fetching ingredients:", error);
             return [];
         }
     }
 
-    // Fetch available equipment from the database
     async function fetchEquipment() {
         try {
             const response = await fetch(`${API_BASE_URL}/get-equipment`);
             const data = await response.json();
-
-            console.log("Equipment API Response:", data); // Debugging log
-
-            // Ensure data is an object and contains the 'equipment' array
-            if (data && Array.isArray(data.equipment)) {
-                return data.equipment; // Return the array of equipment
-            } else {
-                console.error("Invalid equipment data format:", data);
-                return []; // Return an empty array if data format is incorrect
-            }
+            return data && Array.isArray(data.equipment) ? data.equipment : [];
         } catch (error) {
             console.error("Error fetching equipment:", error);
-            return []; // Return an empty array on error
+            return [];
         }
     }
 
-    // Populate equipment checkboxes
     async function populateEquipment() {
         const equipmentList = await fetchEquipment();
-        equipmentFields.innerHTML = "<label>Equipment</label>"; // Reset content
-
+        equipmentFields.innerHTML = "<label>Equipment</label>";
         if (equipmentList.length === 0) {
             equipmentFields.innerHTML += "<p>No equipment available.</p>";
             return;
         }
-
         equipmentList.forEach((equipment) => {
             const checkboxItem = document.createElement("div");
             checkboxItem.classList.add("checkbox-item");
@@ -68,18 +50,14 @@ document.addEventListener("DOMContentLoaded", async function () {
         });
     }
 
-    // Add a new ingredient field dynamically
     async function addIngredientField() {
         const ingredientsList = await fetchIngredients();
-
         if (ingredientsList.length === 0) {
             alert("No ingredients available to select.");
             return;
         }
-
         const ingredientDiv = document.createElement("div");
         ingredientDiv.classList.add("ingredient-entry");
-
         ingredientDiv.innerHTML = `
             <select name="ingredient" class="ingredient-select">
                 ${ingredientsList.map((name) => `<option value="${name}">${name}</option>`).join("")}
@@ -90,31 +68,46 @@ document.addEventListener("DOMContentLoaded", async function () {
             </select>
             <button type="button" class="remove-ingredient">Remove</button>
         `;
-
-        document.getElementById("ingredient-fields").appendChild(ingredientDiv);
         ingredientFields.appendChild(ingredientDiv);
+        ingredientDiv.querySelector(".remove-ingredient").addEventListener("click", () => ingredientDiv.remove());
+    }
 
-        // Remove ingredient event
-        ingredientDiv.querySelector(".remove-ingredient").addEventListener("click", () => {
-            ingredientDiv.remove();
+    function addInstructionStep() {
+        const stepNumber = instructionFields.children.length + 1;
+        const instructionDiv = document.createElement("div");
+        instructionDiv.classList.add("instruction-entry");
+        instructionDiv.innerHTML = `
+            <span>${stepNumber}.</span>
+            <input type="text" class="instruction-text" placeholder="Enter step ${stepNumber}" required />
+            <button type="button" class="remove-instruction">Remove</button>
+        `;
+        instructionFields.appendChild(instructionDiv);
+        instructionDiv.querySelector(".remove-instruction").addEventListener("click", () => {
+            instructionDiv.remove();
+            updateInstructionNumbers();
         });
     }
 
-    // Handle adding new ingredient field
-    addIngredientButton.addEventListener("click", addIngredientField);
+    function updateInstructionNumbers() {
+        document.querySelectorAll(".instruction-entry").forEach((div, index) => {
+            div.querySelector("span").textContent = `${index + 1}.`;
+            div.querySelector(".instruction-text").setAttribute("placeholder", `Enter step ${index + 1}`);
+        });
+    }
 
-    // Populate equipment dynamically
+    addIngredientButton.addEventListener("click", addIngredientField);
+    addInstructionButton.addEventListener("click", addInstructionStep);
     populateEquipment();
 
-    // Handle form submission
     formElement.addEventListener("submit", (e) => {
         e.preventDefault();
         console.log("Form submission event triggered.");
-
-        // Collect form data
         const formData = {
             title: document.getElementById("title").value,
-            instructions: document.getElementById("instructions").value,
+            instructions: Array.from(document.querySelectorAll(".instruction-text"))
+                .map((input) => input.value.trim())
+                .filter((text) => text !== "")
+                .join("; "),
             prepTime: document.getElementById("prepTime").value,
             cookTime: document.getElementById("cookTime").value,
             mealTypes: {
@@ -132,8 +125,6 @@ document.addEventListener("DOMContentLoaded", async function () {
         };
 
         console.log("Form Data Being Sent:", formData);
-
-        // Send data to the server
         fetch(`${API_BASE_URL}/add-recipe`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -148,7 +139,8 @@ document.addEventListener("DOMContentLoaded", async function () {
                     }, 3000);
                     formElement.reset();
                     ingredientFields.innerHTML = "";
-                    populateEquipment(); // Refresh equipment checkboxes
+                    instructionFields.innerHTML = "";
+                    populateEquipment();
                 } else {
                     alert(data.message || "Failed to add recipe.");
                 }

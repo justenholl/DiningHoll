@@ -104,9 +104,9 @@ document.addEventListener("DOMContentLoaded", async function () {
         console.log("Form submission event triggered.");
         const formData = {
             title: document.getElementById("title").value,
-            instructions: Array.from(document.querySelectorAll(".instruction-text"))
-                .map((input) => input.value.trim())
-                .filter((text) => text !== "")
+            instructions: Array.from(document.querySelectorAll(".instruction-entry"))
+                .map((div, index) => `${index + 1}. ${div.querySelector(".instruction-text").value.trim()}`)
+                .filter((text) => text !== "1. ") // Ensure empty instructions are not saved
                 .join("; "),
             prepTime: document.getElementById("prepTime").value,
             cookTime: document.getElementById("cookTime").value,

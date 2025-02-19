@@ -42,6 +42,10 @@ async function fetchViableRecipes(breakfastCount, lunchCount, dinnerCount, userE
 
         const recipes = data.recipes;
         const recipeEquipmentMap = {}; // Map recipe_id -> required equipment list
+        
+        console.log("API response for recipes:", data);
+        console.log("Recipes array:", data.recipes);
+        console.log("Recipes array type:", Array.isArray(data.recipes));
 
         for (const recipe of recipes) {
             console.log(`Fetching equipment for recipe_id: ${recipe.id}`); // Debugging log

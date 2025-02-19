@@ -31,6 +31,7 @@ async function fetchUserEquipment() {
 // Function to fetch viable recipes based on meal preferences and available equipment
 async function fetchViableRecipes(breakfastCount, lunchCount, dinnerCount, userEquipment) {
     try {
+        console.log("Fetching recipes from API...");
         const response = await fetch(`${API_BASE_URL}/get-recipes`);
         const data = await response.json();
 
@@ -46,6 +47,7 @@ async function fetchViableRecipes(breakfastCount, lunchCount, dinnerCount, userE
             console.log(`Fetching equipment for recipe_id: ${recipe.id}`); // Debugging log
 
             const recipeEquipmentResponse = await fetch(`${API_BASE_URL}/get-recipe-equipment?recipe_id=${recipe.id}`);
+            console.log(`Fetching equipment for recipe_id: ${recipe.id}`); 
             console.log("Response status:", recipeEquipmentResponse.status); // Debugging log
             
             const recipeEquipmentData = await recipeEquipmentResponse.json();

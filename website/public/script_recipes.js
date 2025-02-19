@@ -13,26 +13,43 @@ if (loggedInUser) {
             if (data.success) {
                 const { breakfast, lunch, dinner } = data.preferences;
 
-                // Update the preferences header with the logged-in user
-                document.getElementById("preferences-header").innerText = `Preferences for: ${loggedInUser}`;
+                // ** Update the preferences header dynamically**
+                const preferencesHeader = document.getElementById("preferences-header");
+                if (preferencesHeader) {
+                    preferencesHeader.innerText = `Preferences for: ${loggedInUser}`;
+                }
 
-                // Update the meal information with the fetched preferences
-                document.getElementById("meal-info").innerText = `For this week, ${loggedInUser} wants ${breakfast} breakfast(s), ${lunch} lunch(es), and ${dinner} dinner(s).`;
+                // ** Update meal info dynamically based on fetched data**
+                const mealInfo = document.getElementById("meal-info");
+                if (mealInfo) {
+                    mealInfo.innerText = `For this week, ${loggedInUser} wants ${breakfast} breakfast(s), ${lunch} lunch(es), and ${dinner} dinner(s).`;
+                }
 
-                // Call displayRecipes using pre-fetched recipes and stored shopping list
+                // ** Call displayRecipes with pre-fetched recipes**
                 displayRecipes(viableRecipes, storedShoppingList);
             } else {
-                document.getElementById("meal-info").innerText = "Error retrieving meal preferences. Please try again.";
+                // If there's an issue fetching preferences, display an error
+                const mealInfo = document.getElementById("meal-info");
+                if (mealInfo) {
+                    mealInfo.innerText = "Error retrieving meal preferences. Please try again.";
+                }
             }
         })
         .catch((error) => {
-            document.getElementById("meal-info").innerText = "An error occurred while fetching data. Please try again later.";
+            // Handle any errors during the fetch
+            const mealInfo = document.getElementById("meal-info");
+            if (mealInfo) {
+                mealInfo.innerText = "An error occurred while fetching data. Please try again later.";
+            }
             console.error(error);
         });
 } 
 else {
     // If no user is logged in, prompt to log in
-    document.getElementById("meal-info").innerText = "Please log in first.";
+    const mealInfo = document.getElementById("meal-info");
+    if (mealInfo) {
+        mealInfo.innerText = "Please log in first.";
+    }
     window.location.href = "login_page.html";  // Redirect to login page if no logged-in user
 }
 
@@ -49,7 +66,7 @@ function displayRecipes(recipes, shoppingList) {
     shoppingListSection.innerHTML = `<h2>Shopping List</h2>`;
 
     if (recipes.length > 0) {
-        // Display recipe titles only
+        // ** Display recipe titles dynamically**
         recipes.forEach((recipe) => {
             const recipeLink = document.createElement("a");
             recipeLink.href = `recipe.html?id=${recipe.id}`; // Dynamic link
@@ -77,7 +94,7 @@ function displayRecipes(recipes, shoppingList) {
                 }
             });
 
-            // Display shopping list
+            // ** Display shopping list dynamically**
             const shoppingListItems = document.createElement("ul");
             ingredientMap.forEach((item) => {
                 const listItem = document.createElement("li");
@@ -91,46 +108,5 @@ function displayRecipes(recipes, shoppingList) {
         }
     } else {
         mealSection.innerHTML += `<p>No recipes found for the selected preferences.</p>`;
-    }
-}
-
-// Send the email 
-async function sendEmail() {
-    try {
-        const userEmail = loggedInUser; // Retrieve user's email
-        if (!userEmail) {
-            alert("User email not found. Please log in.");
-            return;
-        }
-
-        const recipes = [];
-        document.querySelectorAll("#recipes-list h3").forEach(recipe => {
-            const recipeId = recipe.getAttribute("data-id");
-            const recipeTitle = recipe.innerText;
-            recipes.push({ id: recipeId, title: recipeTitle });
-        });
-
-        const shoppingList = [];
-        document.querySelectorAll("#shopping-list ul li").forEach(item => {
-            shoppingList.push(item.innerText);
-        });
-
-        const response = await fetch(`${API_BASE_URL}/send-email`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ email: userEmail, recipes, shoppingList })
-        });
-
-        const result = await response.json();
-        if (result.success) {
-            alert("Email sent successfully!");
-        } else {
-            alert("Failed to send email.");
-        }
-    } catch (error) {
-        console.error("Error sending email:", error);
-        alert("An error occurred while sending the email.");
     }
 }

@@ -251,13 +251,11 @@ app.get("/get-recipes", async (req, res) => {
                 let equipmentCondition = '';
                 const queryParams = []; // Holds query parameters dynamically
 
-                // Dynamically build placeholders for the IN clause if there is equipment
                 if (equipmentList.length > 0) {
                     equipmentCondition = `AND re.equipment_id IN (${equipmentList.map(() => '?').join(', ')})`;
                     queryParams.push(...equipmentList); // Add all equipment items to queryParams
                 }
 
-                // Final query
                 const query = `
                     SELECT r.id, r.title
                     FROM Recipes r
@@ -270,8 +268,8 @@ app.get("/get-recipes", async (req, res) => {
                     LIMIT ?;
                 `;
 
-                queryParams.push(...equipmentList); // Add the same list for the HAVING clause
-                queryParams.push(count); // Ensure count is added at the end for LIMIT
+                queryParams.push(...equipmentList); // Add equipment list again for HAVING clause
+                queryParams.push(count); // Add the recipe limit
 
                 console.log("SQL Query:", query); // Debugging log
                 console.log("Query Parameters:", queryParams); // Debugging log

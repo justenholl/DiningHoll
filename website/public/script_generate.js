@@ -16,6 +16,7 @@ async function fetchUserEquipment() {
         const data = await response.json();
 
         if (data.success) {
+            console.log("Fetched user preferences.");
             return data.preferences || []; // Return array of equipment names
         } else {
             console.error("Failed to fetch user equipment.");

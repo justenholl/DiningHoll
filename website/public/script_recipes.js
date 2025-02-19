@@ -2,7 +2,7 @@
 const loggedInUser = localStorage.getItem("loggedInUser");
 
 // Retrieve stored recipes and shopping list from localStorage
-const viableRecipes = JSON.parse(localStorage.getItem("filteredRecipes")) || [];
+const viableRecipes = localStorage.getItem("filteredRecipes") ? JSON.parse(localStorage.getItem("filteredRecipes")) : [];
 const storedShoppingList = JSON.parse(localStorage.getItem("shoppingList")) || [];
 
 if (loggedInUser) {

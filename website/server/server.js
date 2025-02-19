@@ -590,10 +590,18 @@ app.get("/get-recipe", async (req, res) => {
 // For the generating making sure youre only getting recipes you can cook
 app.get("/get-recipe-equipment", (req, res) => {
     const { recipe_id } = req.query;
-    
+
+    // Log incoming request to check if recipe_id is received
+    console.log("Received GET request to /get-recipe-equipment");
+    console.log("Query parameters:", req.query);
+
     if (!recipe_id) {
+        console.error("Missing recipe_id parameter in request.");
         return res.status(400).json({ success: false, message: "Missing recipe_id parameter." });
     }
+
+    // Log the recipe_id before executing the query
+    console.log("Fetching equipment for recipe_id:", recipe_id);
 
     const query = `
         SELECT e.id, e.name 
@@ -601,13 +609,16 @@ app.get("/get-recipe-equipment", (req, res) => {
         JOIN equipment e ON re.equipment_id = e.id
         WHERE re.recipe_id = ?
     `;
-    
+
     db.query(query, [recipe_id], (err, results) => {
         if (err) {
-            console.error("Error fetching recipe equipment:", err);
+            console.error("Error fetching recipe equipment from DB:", err);
             return res.status(500).json({ success: false, message: "Database error." });
         }
-        
+
+        // Log the results before sending them back
+        console.log("Equipment found for recipe_id", recipe_id, ":", results);
+
         res.json({ success: true, equipment: results });
     });
 });

@@ -249,12 +249,12 @@ app.get("/get-recipes", async (req, res) => {
         const createQuery = async (mealType, count) => {
             if (count > 0) {
                 let equipmentCondition = '';
-                const queryParams = [count];  // Default parameter for the recipe limit
+                const queryParams = []; // Holds query parameters dynamically
 
+                // Dynamically build placeholders for the IN clause if there is equipment
                 if (equipmentList.length > 0) {
-                    // Dynamically build placeholders for the IN clause
                     equipmentCondition = `AND re.equipment_id IN (${equipmentList.map(() => '?').join(', ')})`;
-                    queryParams.push(...equipmentList); // Add all the equipment items to queryParams
+                    queryParams.push(...equipmentList); // Add all equipment items to queryParams
                 }
 
                 // Final query
@@ -265,15 +265,18 @@ app.get("/get-recipes", async (req, res) => {
                     WHERE ${mealType}_bool = 1
                     ${equipmentCondition}
                     GROUP BY r.id
-                    HAVING COUNT(DISTINCT re.equipment_id) = COUNT(DISTINCT CASE WHEN re.equipment_id IN (?) THEN re.equipment_id END)
+                    HAVING COUNT(DISTINCT re.equipment_id) = COUNT(DISTINCT CASE WHEN re.equipment_id IN (${equipmentList.map(() => '?').join(', ')}) THEN re.equipment_id END)
                     ORDER BY RAND()
                     LIMIT ?;
                 `;
 
+                queryParams.push(...equipmentList); // Add the same list for the HAVING clause
+                queryParams.push(count); // Ensure count is added at the end for LIMIT
+
                 console.log("SQL Query:", query); // Debugging log
                 console.log("Query Parameters:", queryParams); // Debugging log
 
-                const [rows] = await db.promise().query(query, [...queryParams, equipmentList]);
+                const [rows] = await db.promise().query(query, queryParams);
                 return rows;
             }
             return [];

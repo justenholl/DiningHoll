@@ -1,8 +1,9 @@
 // Retrieve the logged-in user from localStorage
 const loggedInUser = localStorage.getItem("loggedInUser");
 
-// Retrieve stored recipes from localStorage
-const viableRecipes = JSON.parse(localStorage.getItem("filteredRecipes"));
+// Retrieve stored recipes and shopping list from localStorage
+const viableRecipes = JSON.parse(localStorage.getItem("filteredRecipes")) || [];
+const storedShoppingList = JSON.parse(localStorage.getItem("shoppingList")) || [];
 
 if (loggedInUser) {
     // Fetch the user's meal preferences from the backend
@@ -18,8 +19,8 @@ if (loggedInUser) {
                 // Update the meal information with the fetched preferences
                 document.getElementById("meal-info").innerText = `For this week, ${loggedInUser} wants ${breakfast} breakfast(s), ${lunch} lunch(es), and ${dinner} dinner(s).`;
 
-                // Call displayRecipes using the pre-fetched recipes
-                displayRecipes(viableRecipes);
+                // Call displayRecipes using pre-fetched recipes and stored shopping list
+                displayRecipes(viableRecipes, storedShoppingList);
             } else {
                 document.getElementById("meal-info").innerText = "Error retrieving meal preferences. Please try again.";
             }
@@ -36,8 +37,9 @@ else {
 }
 
 // Function to display recipes and shopping list
-function displayRecipes(recipes) {
+function displayRecipes(recipes, shoppingList) {
     console.log("Using pre-fetched recipes:", recipes); // Debugging
+    console.log("Using stored shopping list:", shoppingList); // Debugging
 
     const mealSection = document.getElementById("recipes-list");
     const shoppingListSection = document.getElementById("shopping-list");
@@ -46,7 +48,7 @@ function displayRecipes(recipes) {
     mealSection.innerHTML = `<h2>Recipes</h2>`;
     shoppingListSection.innerHTML = `<h2>Shopping List</h2>`;
 
-    if (recipes && recipes.length > 0) {
+    if (recipes.length > 0) {
         // Display recipe titles only
         recipes.forEach((recipe) => {
             const recipeLink = document.createElement("a");
@@ -60,14 +62,11 @@ function displayRecipes(recipes) {
             mealSection.appendChild(recipeTitle);
         });
 
-        // ** Load shopping list from localStorage **
-        const storedShoppingList = JSON.parse(localStorage.getItem("shoppingList")) || [];
-
-        if (storedShoppingList.length > 0) {
+        if (shoppingList.length > 0) {
             const ingredientMap = new Map();
 
             // Sum quantities for each ingredient
-            storedShoppingList.forEach((item) => {
+            shoppingList.forEach((item) => {
                 const key = `${item.name}-${item.unit}`; // Unique key to group by name & unit
                 const quantity = parseFloat(item.quantity) || 0; // Ensure numeric conversion
 
@@ -94,7 +93,6 @@ function displayRecipes(recipes) {
         mealSection.innerHTML += `<p>No recipes found for the selected preferences.</p>`;
     }
 }
-
 
 // Send the email 
 async function sendEmail() {

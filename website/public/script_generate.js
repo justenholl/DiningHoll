@@ -32,7 +32,7 @@ async function fetchUserEquipment() {
 async function fetchViableRecipes(breakfastCount, lunchCount, dinnerCount, userEquipment) {
     try {
         console.log("Fetching recipes from API...");
-        const response = await fetch(`${API_BASE_URL}/get-recipes`);
+        const response = await fetch(`${API_BASE_URL}/get-recipes?breakfast=${breakfastCount}&lunch=${lunchCount}&dinner=${dinnerCount}`);
         const data = await response.json();
 
         if (!data.success || !Array.isArray(data.recipes)) {

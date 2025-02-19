@@ -60,14 +60,14 @@ function displayRecipes(recipes) {
             mealSection.appendChild(recipeTitle);
         });
 
-        // ** Process and combine ingredients in the shopping list **
-        const shoppingList = recipes.flatMap(recipe => recipe.ingredients || []);
+        // ** Load shopping list from localStorage **
+        const storedShoppingList = JSON.parse(localStorage.getItem("shoppingList")) || [];
 
-        if (shoppingList.length > 0) {
+        if (storedShoppingList.length > 0) {
             const ingredientMap = new Map();
 
             // Sum quantities for each ingredient
-            shoppingList.forEach((item) => {
+            storedShoppingList.forEach((item) => {
                 const key = `${item.name}-${item.unit}`; // Unique key to group by name & unit
                 const quantity = parseFloat(item.quantity) || 0; // Ensure numeric conversion
 
@@ -94,6 +94,7 @@ function displayRecipes(recipes) {
         mealSection.innerHTML += `<p>No recipes found for the selected preferences.</p>`;
     }
 }
+
 
 // Send the email 
 async function sendEmail() {

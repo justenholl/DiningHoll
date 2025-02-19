@@ -6,7 +6,7 @@ if (loggedInUser) {
     document.getElementById("mealcounts-header").innerText = `Preferences for: ${loggedInUser}`;
 } else {
     alert("Please log in first.");
-    window.location.href = "login_page.html";
+    window.location.href = "./index.html";
 }
 
 // Function to fetch the user's saved equipment preferences
@@ -84,12 +84,16 @@ document.getElementById("meal-preferences-form").addEventListener("submit", asyn
     console.log("Viable Recipes:", viableRecipes);  // Debugging log
 
     if (viableRecipes.length > 0) {
-        localStorage.setItem("filteredRecipes", JSON.stringify(viableRecipes));
+        localStorage.setItem("filteredRecipes", JSON.stringify(viableRecipes.recipes)); 
+        localStorage.setItem("shoppingList", JSON.stringify(viableRecipes.shoppingList)); 
+        localStorage.setItem("mealCounts", JSON.stringify({ breakfast: breakfastCount, lunch: lunchCount, dinner: dinnerCount }));
+
         window.location.href = "./recipes.html";
     } else {
         alert("No recipes available that match your meal preferences and equipment.");
     }
 });
+
 
 // Pre-fill the dropdowns with existing meal preferences
 document.addEventListener("DOMContentLoaded", async () => {

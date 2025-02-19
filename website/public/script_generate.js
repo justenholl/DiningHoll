@@ -39,23 +39,24 @@ async function fetchViableRecipes(breakfastCount, lunchCount, dinnerCount, userE
         }
 
         const recipes = data.recipes;
-
-        // Fetch required equipment for each recipe
-        const recipeEquipmentResponse = await fetch(`${API_BASE_URL}/get-recipe-equipment`);
-        const recipeEquipmentData = await recipeEquipmentResponse.json();
-
-        if (!recipeEquipmentData.success || !Array.isArray(recipeEquipmentData.recipe_equipment)) {
-            console.error("Failed to fetch recipe equipment.");
-            return [];
-        }
-
         const recipeEquipmentMap = {}; // Map recipe_id -> required equipment list
-        recipeEquipmentData.recipe_equipment.forEach((entry) => {
-            if (!recipeEquipmentMap[entry.recipe_id]) {
-                recipeEquipmentMap[entry.recipe_id] = [];
+
+        for (const recipe of recipes) {
+            console.log(`Fetching equipment for recipe_id: ${recipe.id}`); // Debugging log
+
+            const recipeEquipmentResponse = await fetch(`${API_BASE_URL}/get-recipe-equipment?recipe_id=${recipe.id}`);
+            console.log("Response status:", recipeEquipmentResponse.status); // Debugging log
+            
+            const recipeEquipmentData = await recipeEquipmentResponse.json();
+            console.log("Recipe equipment data:", recipeEquipmentData); // Debugging log
+
+            if (!recipeEquipmentData.success || !Array.isArray(recipeEquipmentData.equipment)) {
+                console.error(`Failed to fetch equipment for recipe_id: ${recipe.id}`);
+                continue;
             }
-            recipeEquipmentMap[entry.recipe_id].push(entry.equipment_name);
-        });
+
+            recipeEquipmentMap[recipe.id] = recipeEquipmentData.equipment.map(e => e.name);
+        }
 
         // Filter recipes that match the meal type and user's equipment
         const viableRecipes = recipes.filter((recipe) => {

@@ -32,35 +32,20 @@ async function fetchUserEquipment() {
 async function fetchViableRecipes(breakfastCount, lunchCount, dinnerCount, userEquipment) {
     try {
         console.log("Fetching recipes from API...");
+        const response = await fetch(`${API_BASE_URL}/get-recipes?breakfast=${breakfastCount}&lunch=${lunchCount}&dinner=${dinnerCount}`);
+        const data = await response.json();
 
-        // Convert userEquipment array to a comma-separated string
-        const userEquipmentString = userEquipment.join(",");
-
-        // Construct the URL with the query parameters for meal counts and equipment
-        const url = `${API_BASE_URL}/get-recipes?breakfast=${breakfastCount}&lunch=${lunchCount}&dinner=${dinnerCount}&userEquipment=${userEquipmentString}`;
-
-        // Make the fetch request with the constructed URL
-        const response = await fetch(url);
-
-        // Check if the request was successful
-        if (!response.ok) {
-            console.error("Failed to fetch recipes");
+        if (!data.success || !Array.isArray(data.recipes)) {
+            console.error("Failed to fetch recipes.");
             return [];
         }
 
-        // Parse the JSON response
-        const data = await response.json();
+        const recipes = data.recipes;
+        const recipeEquipmentMap = {}; // Map recipe_id -> required equipment list
+
         console.log("API response for recipes:", data);
 
-        // Filter recipes based on the meal count and equipment
-        return data.recipes.filter((recipe) => {
-            return (
-                ((breakfastCount > 0 && recipe.breakfast_bool) ||
-                 (lunchCount > 0 && recipe.lunch_bool) ||
-                 (dinnerCount > 0 && recipe.dinner_bool))
-            );
-        });
-
+        return recipes;
     } catch (error) {
         console.error("Error fetching viable recipes:", error);
         return [];

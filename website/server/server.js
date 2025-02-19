@@ -240,9 +240,6 @@ app.get("/get-recipes", async (req, res) => {
     const dinnerCount = parseInt(dinner, 10) || 0;
     const equipmentList = userEquipment ? userEquipment.split(",") : [];
 
-    console.log("Parsed meal counts:", breakfastCount, lunchCount, dinnerCount); // Debugging log
-    console.log("User Equipment List:", equipmentList); // Debugging log
-
     const queries = [];
     const recipes = [];
     const ingredientsMap = new Map(); // To aggregate the shopping list
@@ -251,15 +248,13 @@ app.get("/get-recipes", async (req, res) => {
         // Helper function to create queries based on meal type and equipment
         const createQuery = async (mealType, count) => {
             if (count > 0) {
-                // Build the equipment condition for the SQL query
                 let equipmentCondition = '';
                 const queryParams = [count];  // Default parameter for the recipe limit
 
                 if (equipmentList.length > 0) {
                     // Dynamically build placeholders for the IN clause
                     equipmentCondition = `AND re.equipment_id IN (${equipmentList.map(() => '?').join(', ')})`;
-                    // Add all the equipment items to queryParams
-                    queryParams.push(...equipmentList);
+                    queryParams.push(...equipmentList); // Add all the equipment items to queryParams
                 }
 
                 // Final query
@@ -270,7 +265,7 @@ app.get("/get-recipes", async (req, res) => {
                     WHERE ${mealType}_bool = 1
                     ${equipmentCondition}
                     GROUP BY r.id
-                    HAVING COUNT(DISTINCT re.equipment_id) >= ?
+                    HAVING COUNT(DISTINCT re.equipment_id) = COUNT(DISTINCT CASE WHEN re.equipment_id IN (?) THEN re.equipment_id END)
                     ORDER BY RAND()
                     LIMIT ?;
                 `;
@@ -278,7 +273,7 @@ app.get("/get-recipes", async (req, res) => {
                 console.log("SQL Query:", query); // Debugging log
                 console.log("Query Parameters:", queryParams); // Debugging log
 
-                const [rows] = await db.promise().query(query, queryParams);
+                const [rows] = await db.promise().query(query, [...queryParams, equipmentList]);
                 return rows;
             }
             return [];

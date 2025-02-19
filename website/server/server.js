@@ -230,6 +230,8 @@ app.get("/get-meal-preferences", (req, res) => {
 
 // Get recipes by meal preferences (breakfast, lunch, dinner)
 app.get("/get-recipes", async (req, res) => {
+    console.log("Received request for recipes:", req.query); // Log the request data
+
     const { breakfast, lunch, dinner, userEquipment } = req.query;
 
     // Parse query parameters

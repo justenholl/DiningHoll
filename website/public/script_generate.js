@@ -32,20 +32,28 @@ async function fetchUserEquipment() {
 async function fetchViableRecipes(breakfastCount, lunchCount, dinnerCount, userEquipment) {
     try {
         console.log("Fetching recipes from API...");
-        const response = await fetch(`${API_BASE_URL}/get-recipes?breakfast=${breakfastCount}&lunch=${lunchCount}&dinner=${dinnerCount}`);
+
+        // Construct the URL for the request with all query parameters
+        const equipmentParam = userEquipment.length > 0 ? `&userEquipment=${encodeURIComponent(userEquipment.join(","))}` : "";
+        const url = `${API_BASE_URL}/get-recipes?breakfast=${breakfastCount}&lunch=${lunchCount}&dinner=${dinnerCount}${equipmentParam}`;
+        console.log("Constructed API URL:", url);  // Debugging log for URL
+
+        const response = await fetch(url);
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
         const data = await response.json();
 
+        console.log("API response for recipes:", data);  // Debugging log
+
         if (!data.success || !Array.isArray(data.recipes)) {
-            console.error("Failed to fetch recipes.");
+            console.error("Failed to fetch recipes or invalid data format.");
             return [];
         }
 
-        const recipes = data.recipes;
-        const recipeEquipmentMap = {}; // Map recipe_id -> required equipment list
-
-        console.log("API response for recipes:", data);
-
-        return recipes;
+        return data.recipes;
     } catch (error) {
         console.error("Error fetching viable recipes:", error);
         return [];
@@ -59,6 +67,7 @@ document.getElementById("meal-preferences-form").addEventListener("submit", asyn
     const breakfastCount = parseInt(document.getElementById("breakfast").value, 10);
     const lunchCount = parseInt(document.getElementById("lunch").value, 10);
     const dinnerCount = parseInt(document.getElementById("dinner").value, 10);
+
     console.log("Breakfast Count:", breakfastCount, "Lunch Count:", lunchCount, "Dinner Count:", dinnerCount); // Debugging log
 
     if (isNaN(breakfastCount) || isNaN(lunchCount) || isNaN(dinnerCount)) {

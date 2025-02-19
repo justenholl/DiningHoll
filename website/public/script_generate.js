@@ -59,6 +59,7 @@ document.getElementById("meal-preferences-form").addEventListener("submit", asyn
     const breakfastCount = parseInt(document.getElementById("breakfast").value, 10);
     const lunchCount = parseInt(document.getElementById("lunch").value, 10);
     const dinnerCount = parseInt(document.getElementById("dinner").value, 10);
+    console.log("Breakfast Count:", breakfastCount, "Lunch Count:", lunchCount, "Dinner Count:", dinnerCount); // Debugging log
 
     if (isNaN(breakfastCount) || isNaN(lunchCount) || isNaN(dinnerCount)) {
         alert("Invalid input values.");
@@ -67,13 +68,15 @@ document.getElementById("meal-preferences-form").addEventListener("submit", asyn
 
     // Fetch user's saved equipment
     const userEquipment = await fetchUserEquipment();
+    console.log("User Equipment:", userEquipment);  // Debugging log
 
     // Fetch viable recipes based on equipment and meal preferences
     const viableRecipes = await fetchViableRecipes(breakfastCount, lunchCount, dinnerCount, userEquipment);
+    console.log("Viable Recipes:", viableRecipes);  // Debugging log
 
     if (viableRecipes.length > 0) {
         localStorage.setItem("filteredRecipes", JSON.stringify(viableRecipes));
-        window.location.href = "recipes.html";
+        window.location.href = "./recipes.html";
     } else {
         alert("No recipes available that match your meal preferences and equipment.");
     }

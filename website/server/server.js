@@ -249,13 +249,27 @@ app.get("/get-recipes", async (req, res) => {
         const createQuery = async (mealType, count) => {
             if (count > 0) {
                 let equipmentCondition = '';
-                const queryParams = []; // Holds query parameters dynamically
+                let queryParams = []; // Holds query parameters dynamically
 
-                if (equipmentList.length > 0) {
-                    equipmentCondition = `AND re.equipment_id IN (${equipmentList.map(() => '?').join(', ')})`;
-                    queryParams.push(...equipmentList); // Add all equipment items to queryParams
+                // 1. Pre-fetch equipment IDs based on names (if necessary)
+                console.log("Original Equipment List (Names or IDs):", equipmentList);
+
+                // If equipmentList contains names, we need to convert them to IDs first
+                const [equipmentRows] = await db.promise().query(
+                    `SELECT id FROM Equipment WHERE name IN (${equipmentList.map(() => '?').join(', ')})`,
+                    equipmentList
+                );
+
+                const equipmentIDs = equipmentRows.map(row => row.id); // Extract IDs
+                console.log("Resolved Equipment IDs:", equipmentIDs); // Debugging log
+
+                if (equipmentIDs.length > 0) {
+                    // 2. Dynamically build placeholders for the IN clause
+                    equipmentCondition = `AND re.equipment_id IN (${equipmentIDs.map(() => '?').join(', ')})`;
+                    queryParams.push(...equipmentIDs); // Add IDs to queryParams
                 }
 
+                // 3. Construct the main query
                 const query = `
                     SELECT r.id, r.title
                     FROM Recipes r
@@ -263,22 +277,26 @@ app.get("/get-recipes", async (req, res) => {
                     WHERE ${mealType}_bool = 1
                     ${equipmentCondition}
                     GROUP BY r.id
-                    HAVING COUNT(DISTINCT re.equipment_id) = COUNT(DISTINCT CASE WHEN re.equipment_id IN (${equipmentList.map(() => '?').join(', ')}) THEN re.equipment_id END)
+                    HAVING COUNT(DISTINCT re.equipment_id) = COUNT(DISTINCT CASE WHEN re.equipment_id IN (${equipmentIDs.map(() => '?').join(', ')}) THEN re.equipment_id END)
                     ORDER BY RAND()
                     LIMIT ?;
                 `;
 
-                queryParams.push(...equipmentList); // Add equipment list again for HAVING clause
-                queryParams.push(count); // Add the recipe limit
+                queryParams.push(...equipmentIDs); // Add IDs again for HAVING clause
+                queryParams.push(count); // Add limit parameter
 
-                console.log("SQL Query:", query); // Debugging log
-                console.log("Query Parameters:", queryParams); // Debugging log
+                // Debugging logs before executing
+                console.log("Final SQL Query:", query);
+                console.log("Final Query Parameters:", queryParams);
 
+                // 4. Execute the query
                 const [rows] = await db.promise().query(query, queryParams);
+                console.log("Selected Recipes:", rows); // Debugging log
                 return rows;
             }
             return [];
         };
+
 
         // Fetch recipes for breakfast, lunch, and dinner
         const breakfastRecipes = await createQuery("breakfast", breakfastCount);

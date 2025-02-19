@@ -84,6 +84,8 @@ document.getElementById("meal-preferences-form").addEventListener("submit", asyn
     console.log("Viable Recipes:", viableRecipes);  // Debugging log
 
     if (viableRecipes.length > 0) {
+        console.log("Saving recipes and shopping list to localStorage...");
+
         localStorage.setItem("filteredRecipes", JSON.stringify(viableRecipes.recipes)); 
         localStorage.setItem("shoppingList", JSON.stringify(viableRecipes.shoppingList)); 
         localStorage.setItem("mealCounts", JSON.stringify({ breakfast: breakfastCount, lunch: lunchCount, dinner: dinnerCount }));
@@ -91,7 +93,11 @@ document.getElementById("meal-preferences-form").addEventListener("submit", asyn
         console.log("Saved recipes to localStorage:", viableRecipes.recipes);
         console.log("Saved shopping list to localStorage:", viableRecipes.shoppingList);
 
-        window.location.href = "./recipes.html";
+        // Delay the redirect to ensure localStorage is updated
+        setTimeout(() => {
+            window.location.href = "./recipes.html";
+        }, 500);  // Adjust the time delay if necessary
+
     } else {
         alert("No recipes available that match your meal preferences and equipment.");
     }

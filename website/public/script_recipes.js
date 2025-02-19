@@ -1,6 +1,9 @@
 // Retrieve the logged-in user from localStorage
 const loggedInUser = localStorage.getItem("loggedInUser");
 
+// Retrieve stored recipes from localStorage
+const viableRecipes = JSON.parse(localStorage.getItem("filteredRecipes"));
+
 if (loggedInUser) {
     // Fetch the user's meal preferences from the backend
     fetch(`${API_BASE_URL}/get-meal-preferences?username=${loggedInUser}`)
@@ -15,8 +18,8 @@ if (loggedInUser) {
                 // Update the meal information with the fetched preferences
                 document.getElementById("meal-info").innerText = `For this week, ${loggedInUser} wants ${breakfast} breakfast(s), ${lunch} lunch(es), and ${dinner} dinner(s).`;
 
-                // Call displayRecipes after meal preferences have been fetched
-                displayRecipes(breakfast, lunch, dinner);
+                // Call displayRecipes using the pre-fetched recipes
+                displayRecipes(viableRecipes);
             } else {
                 document.getElementById("meal-info").innerText = "Error retrieving meal preferences. Please try again.";
             }
@@ -32,72 +35,64 @@ else {
     window.location.href = "login_page.html";  // Redirect to login page if no logged-in user
 }
 
-// Function to fetch and display recipes and shopping list
-function displayRecipes(breakfast, lunch, dinner) {
-    console.log("Sending parameters:", { breakfast, lunch, dinner }); // Debugging
-    fetch(`${API_BASE_URL}/get-recipes?breakfast=${breakfast}&lunch=${lunch}&dinner=${dinner}`)
-        .then((response) => response.json())
-        .then((data) => {
-            console.log("Fetched data:", data);
-            const mealSection = document.getElementById("recipes-list");
-            const shoppingListSection = document.getElementById("shopping-list");
+// Function to display recipes and shopping list
+function displayRecipes(recipes) {
+    console.log("Using pre-fetched recipes:", recipes); // Debugging
 
-            // Clear previous content
-            mealSection.innerHTML = `<h2>Recipes</h2>`;
-            shoppingListSection.innerHTML = `<h2>Shopping List</h2>`;
+    const mealSection = document.getElementById("recipes-list");
+    const shoppingListSection = document.getElementById("shopping-list");
 
-            if (data.success) {
-                if (data.recipes.length > 0) {
-                    // Display recipe titles only
-                    data.recipes.forEach((recipe) => {
-                        const recipeLink = document.createElement("a");
-                        recipeLink.href = `recipe.html?id=${recipe.id}`; // Dynamic link
-                        recipeLink.innerText = recipe.title;
-                        recipeLink.classList.add("recipe-link"); // Optional for styling
+    // Clear previous content
+    mealSection.innerHTML = `<h2>Recipes</h2>`;
+    shoppingListSection.innerHTML = `<h2>Shopping List</h2>`;
 
-                        const recipeTitle = document.createElement("h3");
-                        recipeTitle.appendChild(recipeLink);
-                        mealSection.appendChild(recipeTitle);
-                    });
+    if (recipes && recipes.length > 0) {
+        // Display recipe titles only
+        recipes.forEach((recipe) => {
+            const recipeLink = document.createElement("a");
+            recipeLink.href = `recipe.html?id=${recipe.id}`; // Dynamic link
+            recipeLink.innerText = recipe.title;
+            recipeLink.classList.add("recipe-link"); // Optional for styling
 
-                    // ** Process and combine ingredients in the shopping list **
-                    if (data.shoppingList.length > 0) {
-                        const ingredientMap = new Map();
-
-                        // Sum quantities for each ingredient
-                        data.shoppingList.forEach((item) => {
-                            const key = `${item.name}-${item.unit}`; // Unique key to group by name & unit
-                            const quantity = parseFloat(item.quantity) || 0; // Ensure numeric conversion
-
-                            if (ingredientMap.has(key)) {
-                                ingredientMap.get(key).quantity += quantity; // Add to existing quantity
-                            } else {
-                                ingredientMap.set(key, { name: item.name, quantity: quantity, unit: item.unit });
-                            }
-                        });
-
-                        // Display shopping list
-                        const shoppingListItems = document.createElement("ul");
-                        ingredientMap.forEach((item) => {
-                            const listItem = document.createElement("li");
-                            listItem.innerText = `${item.name}: ${item.quantity.toFixed(2)} ${item.unit}`;
-                            shoppingListItems.appendChild(listItem);
-                        });
-
-                        shoppingListSection.appendChild(shoppingListItems);
-                    } else {
-                        shoppingListSection.innerHTML += `<p>No ingredients needed.</p>`;
-                    }
-                } else {
-                    mealSection.innerHTML += `<p>No recipes found for the selected preferences.</p>`;
-                }
-            } else {
-                mealSection.innerHTML += `<p>Failed to fetch recipes. Please try again later.</p>`;
-            }
-        })
-        .catch((error) => {
-            console.error("Error fetching recipes:", error);
+            const recipeTitle = document.createElement("h3");
+            recipeTitle.setAttribute("data-id", recipe.id); // Store recipe ID for later use
+            recipeTitle.appendChild(recipeLink);
+            mealSection.appendChild(recipeTitle);
         });
+
+        // ** Process and combine ingredients in the shopping list **
+        const shoppingList = recipes.flatMap(recipe => recipe.ingredients || []);
+
+        if (shoppingList.length > 0) {
+            const ingredientMap = new Map();
+
+            // Sum quantities for each ingredient
+            shoppingList.forEach((item) => {
+                const key = `${item.name}-${item.unit}`; // Unique key to group by name & unit
+                const quantity = parseFloat(item.quantity) || 0; // Ensure numeric conversion
+
+                if (ingredientMap.has(key)) {
+                    ingredientMap.get(key).quantity += quantity; // Add to existing quantity
+                } else {
+                    ingredientMap.set(key, { name: item.name, quantity: quantity, unit: item.unit });
+                }
+            });
+
+            // Display shopping list
+            const shoppingListItems = document.createElement("ul");
+            ingredientMap.forEach((item) => {
+                const listItem = document.createElement("li");
+                listItem.innerText = `${item.name}: ${item.quantity.toFixed(2)} ${item.unit}`;
+                shoppingListItems.appendChild(listItem);
+            });
+
+            shoppingListSection.appendChild(shoppingListItems);
+        } else {
+            shoppingListSection.innerHTML += `<p>No ingredients needed.</p>`;
+        }
+    } else {
+        mealSection.innerHTML += `<p>No recipes found for the selected preferences.</p>`;
+    }
 }
 
 // Send the email 
@@ -111,7 +106,6 @@ async function sendEmail() {
 
         const recipes = [];
         document.querySelectorAll("#recipes-list h3").forEach(recipe => {
-            // Assuming each <h3> contains a data-id attribute for the recipe ID
             const recipeId = recipe.getAttribute("data-id");
             const recipeTitle = recipe.innerText;
             recipes.push({ id: recipeId, title: recipeTitle });

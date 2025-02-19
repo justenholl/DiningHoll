@@ -230,29 +230,35 @@ app.get("/get-meal-preferences", (req, res) => {
 
 // Get recipes by meal preferences (breakfast, lunch, dinner)
 app.get("/get-recipes", async (req, res) => {
-    const { breakfast, lunch, dinner } = req.query;
+    const { breakfast, lunch, dinner, userEquipment } = req.query;
 
-    // Parse query parameters as integers
+    // Parse query parameters
     const breakfastCount = parseInt(breakfast, 10) || 0;
     const lunchCount = parseInt(lunch, 10) || 0;
     const dinnerCount = parseInt(dinner, 10) || 0;
+    const equipmentList = userEquipment ? userEquipment.split(",") : [];
 
     const queries = [];
     const recipes = [];
     const ingredientsMap = new Map(); // To aggregate the shopping list
 
     try {
-        // Query for recipes based on meal type
+        // Query for recipes based on meal type and available equipment
         const createQuery = async (mealType, count) => {
             if (count > 0) {
+                const equipmentCondition = equipmentList.length > 0 ? `AND re.equipment_id IN (SELECT id FROM Equipment WHERE name IN (?))`: '';
                 const query = `
-                    SELECT id, title
-                    FROM Recipes
+                    SELECT r.id, r.title
+                    FROM Recipes r
+                    LEFT JOIN Recipe_Equipment re ON r.id = re.recipe_id
                     WHERE ${mealType}_bool = 1
+                    ${equipmentCondition}
+                    GROUP BY r.id
+                    HAVING COUNT(DISTINCT re.equipment_id) = ? 
                     ORDER BY RAND()
                     LIMIT ?;
                 `;
-                const [rows] = await db.promise().query(query, [count]);
+                const [rows] = await db.promise().query(query, [...equipmentList, equipmentList.length, count]);
                 return rows;
             }
             return [];
@@ -270,7 +276,7 @@ app.get("/get-recipes", async (req, res) => {
             return res.json({ success: true, recipes: [], shoppingList: [] });
         }
 
-        // Get recipe IDs for fetching ingredients and equipment
+        // Get recipe IDs for fetching ingredients
         const recipeIds = selectedRecipes.map(recipe => recipe.id);
 
         // Fetch ingredients for the selected recipes
@@ -282,46 +288,25 @@ app.get("/get-recipes", async (req, res) => {
         `;
         const [ingredientRows] = await db.promise().query(ingredientQuery, [recipeIds]);
 
-        // Fetch equipment for the selected recipes
-        const equipmentQuery = `
-            SELECT re.recipe_id, e.name AS equipment_name
-            FROM Recipe_Equipment re
-            JOIN Equipment e ON re.equipment_id = e.id
-            WHERE re.recipe_id IN (?);
-        `;
-        const [equipmentRows] = await db.promise().query(equipmentQuery, [recipeIds]);
+        // Organize recipes with their ingredients
+        const recipeMap = new Map(selectedRecipes.map(recipe => [recipe.id, { ...recipe, ingredients: [] }]));
 
-        // Organize recipes with their ingredients and equipment
-        const recipeMap = new Map(selectedRecipes.map(recipe => [recipe.id, { ...recipe, ingredients: [], equipment: [] }]));
-
-        // Aggregate ingredients correctly by summing up quantities and handling duplicates
+        // Aggregate ingredients
         ingredientRows.forEach(({ recipe_id, ingredient_name, quantity, unit }) => {
             const recipe = recipeMap.get(recipe_id);
             if (recipe) {
-                // Parse the quantity as a float to ensure correct aggregation
                 const parsedQuantity = parseFloat(quantity);
-
-                // Check if this ingredient already exists in the map, if so, sum the quantities
                 if (ingredientsMap.has(ingredient_name)) {
                     ingredientsMap.get(ingredient_name).quantity += parsedQuantity;
                 } else {
-                    // Add new ingredient with its quantity
                     ingredientsMap.set(ingredient_name, { quantity: parsedQuantity, unit });
                 }
             }
         });
 
-        // Organize the equipment
-        equipmentRows.forEach(({ recipe_id, equipment_name }) => {
-            const recipe = recipeMap.get(recipe_id);
-            if (recipe) {
-                recipe.equipment.push(equipment_name);
-            }
-        });
-
         // Convert the ingredients map to an array for the shopping list
         const shoppingList = Array.from(ingredientsMap, ([name, { quantity, unit }]) => ({
-            name: name.replace(/_/g, " "), // Replace underscores with spaces for readability
+            name: name.replace(/_/g, " "), // Replace underscores with spaces
             quantity,
             unit
         }));
@@ -585,40 +570,4 @@ app.get("/get-recipe", async (req, res) => {
         console.error("Error fetching recipe:", error);
         res.status(500).json({ success: false, message: "Database error" });
     }
-});
-
-// For the generating making sure youre only getting recipes you can cook
-app.get("/get-recipe-equipment", (req, res) => {
-    const { recipe_id } = req.query;
-
-    // Log incoming request to check if recipe_id is received
-    console.log("Received GET request to /get-recipe-equipment");
-    console.log("Query parameters:", req.query);
-
-    if (!recipe_id) {
-        console.error("Missing recipe_id parameter in request.");
-        return res.status(400).json({ success: false, message: "Missing recipe_id parameter." });
-    }
-
-    // Log the recipe_id before executing the query
-    console.log("Fetching equipment for recipe_id:", recipe_id);
-
-    const query = `
-        SELECT e.id, e.name 
-        FROM recipe_equipment re
-        JOIN equipment e ON re.equipment_id = e.id
-        WHERE re.recipe_id = ?
-    `;
-
-    db.query(query, [recipe_id], (err, results) => {
-        if (err) {
-            console.error("Error fetching recipe equipment from DB:", err);
-            return res.status(500).json({ success: false, message: "Database error." });
-        }
-
-        // Log the results before sending them back
-        console.log("Equipment found for recipe_id", recipe_id, ":", results);
-
-        res.json({ success: true, equipment: results });
-    });
 });

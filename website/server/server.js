@@ -243,10 +243,13 @@ app.get("/get-recipes", async (req, res) => {
     const ingredientsMap = new Map(); // To aggregate the shopping list
 
     try {
-        // Query for recipes based on meal type and available equipment
+        // Helper function to create queries based on meal type and equipment
         const createQuery = async (mealType, count) => {
             if (count > 0) {
-                const equipmentCondition = equipmentList.length > 0 ? `AND re.equipment_id IN (SELECT id FROM Equipment WHERE name IN (?))`: '';
+                const equipmentCondition = equipmentList.length > 0 ? `AND re.equipment_id IN (SELECT id FROM Equipment WHERE name IN (?))` : '';
+                
+                const queryParams = equipmentList.length > 0 ? [equipmentList, equipmentList.length, count] : [count];
+
                 const query = `
                     SELECT r.id, r.title
                     FROM Recipes r
@@ -254,11 +257,15 @@ app.get("/get-recipes", async (req, res) => {
                     WHERE ${mealType}_bool = 1
                     ${equipmentCondition}
                     GROUP BY r.id
-                    HAVING COUNT(DISTINCT re.equipment_id) = ? 
+                    HAVING COUNT(DISTINCT re.equipment_id) >= ?
                     ORDER BY RAND()
                     LIMIT ?;
                 `;
-                const [rows] = await db.promise().query(query, [...equipmentList, equipmentList.length, count]);
+
+                console.log("SQL Query:", query); // Debugging log
+                console.log("Query Parameters:", queryParams); // Debugging log
+
+                const [rows] = await db.promise().query(query, queryParams);
                 return rows;
             }
             return [];
@@ -271,6 +278,8 @@ app.get("/get-recipes", async (req, res) => {
 
         // Combine all selected recipes
         const selectedRecipes = [...breakfastRecipes, ...lunchRecipes, ...dinnerRecipes];
+
+        console.log("Selected Recipes:", selectedRecipes); // Debugging log
 
         if (selectedRecipes.length === 0) {
             return res.json({ success: true, recipes: [], shoppingList: [] });
@@ -286,6 +295,10 @@ app.get("/get-recipes", async (req, res) => {
             JOIN Ingredients i ON ri.ingredient_id = i.id
             WHERE ri.recipe_id IN (?);
         `;
+
+        console.log("Ingredient Query:", ingredientQuery); // Debugging log
+        console.log("Recipe IDs:", recipeIds); // Debugging log
+
         const [ingredientRows] = await db.promise().query(ingredientQuery, [recipeIds]);
 
         // Organize recipes with their ingredients
@@ -312,6 +325,7 @@ app.get("/get-recipes", async (req, res) => {
         }));
 
         // Send the response with the recipes and shopping list
+        console.log("Shopping List:", shoppingList); // Debugging log
         res.json({ success: true, recipes: Array.from(recipeMap.values()), shoppingList });
     } catch (error) {
         console.error("Error fetching recipes:", error);

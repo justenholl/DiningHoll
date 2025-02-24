@@ -32,8 +32,7 @@ async function fetchUserEquipment() {
 async function handleSubmit(event) {
     event.preventDefault();
     
-    const username = localStorage.getItem('username');
-    if (!username) {
+    if (!loggedInUser) {
         alert('Please log in first');
         return;
     }
@@ -51,7 +50,7 @@ async function handleSubmit(event) {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                username,
+                username: loggedInUser,
                 preferences: {
                     breakfast: breakfastCount,
                     lunch: lunchCount,

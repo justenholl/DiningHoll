@@ -1,19 +1,30 @@
+console.log("Script loading - before login check");
+const loggedInUser = localStorage.getItem("loggedInUser");
+console.log("Initial loggedInUser check:", loggedInUser);
+
+if (!loggedInUser) {
+    console.log("First login check failed - redirecting");
+    alert("Please log in first (check 1)");
+    window.location.href = "./index.html";
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
     console.log("DOM Content Loaded");
     const loggedInUser = localStorage.getItem("loggedInUser");
-    console.log("LoggedInUser from localStorage:", loggedInUser); // Debug log
+    console.log("LoggedInUser check:", loggedInUser);
 
     if (!loggedInUser) {
-        console.log("No logged in user found, redirecting to login");
+        console.log("No logged in user found - redirecting");
+        alert("Please log in first");
         window.location.href = "./index.html";
         return;
     }
-
+    
     try {
         // Fetch the user's meal preferences from the backend
         const response = await fetch(`${API_BASE_URL}/get-meal-preferences?username=${loggedInUser}`);
         const data = await response.json();
-        console.log("Meal preferences response:", data); // Debug log
+        console.log("Meal preferences response:", data);
 
         if (data.success) {
             const { breakfast, lunch, dinner } = data.preferences;
@@ -55,6 +66,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             displayShoppingList(recipesData.shoppingList);
 
         } else {
+            console.log("Failed to get meal preferences");
             const mealInfo = document.getElementById("meal-info");
             if (mealInfo) {
                 mealInfo.innerText = "Error retrieving meal preferences. Please try again.";

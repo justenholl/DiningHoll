@@ -72,8 +72,9 @@ async function handleSubmit(event) {
     }
 }
 
-// Pre-fill the dropdowns with existing meal preferences
+// Single DOMContentLoaded event listener for all initialization
 document.addEventListener("DOMContentLoaded", async () => {
+    // Pre-fill the dropdowns with existing meal preferences
     const response = await fetch(`${API_BASE_URL}/get-meal-preferences?username=${loggedInUser}`);
     const data = await response.json();
 
@@ -83,5 +84,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         document.getElementById("dinner").value = data.preferences.dinner;
     } else {
         console.error("Failed to fetch meal preferences.");
+    }
+
+    // Add form submit event listener
+    const form = document.getElementById('meal-form');
+    if (form) {
+        form.addEventListener('submit', handleSubmit);
     }
 });

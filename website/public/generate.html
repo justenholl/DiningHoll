@@ -20,7 +20,7 @@
     <h1 class="title">Dining Holl</h1>
     <p id="mealcounts-header">Weakly Meal Counts for: username</p> <!-- Dynamically updated with the logged-in user -->
 
-    <form id="meal-form">
+    <form id="meal-form" method="POST">
         <fieldset>
             <div>
                 <input type="number" id="breakfast" name="breakfast" min="0" max="7" value="0">
@@ -37,7 +37,7 @@
                 <label for="dinner">Dinners</label>
             </div>
             
-            <input type="submit" value="Customize">
+            <button type="submit">Generate Recipes</button>
         </fieldset>
     </form>
 </body>

@@ -65,7 +65,7 @@ async function handleSubmit(event) {
         }
 
         // Redirect to recipes page
-        window.location.href = 'recipes.html';
+        window.location.href = './recipes.html';
     } catch (error) {
         console.error('Error saving preferences:', error);
         alert('Failed to save preferences. Please try again.');

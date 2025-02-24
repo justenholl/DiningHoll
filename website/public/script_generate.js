@@ -28,81 +28,49 @@ async function fetchUserEquipment() {
     }
 }
 
-// Function to fetch viable recipes based on meal preferences and available equipment
-async function fetchViableRecipes(breakfastCount, lunchCount, dinnerCount, userEquipment) {
-    try {
-        console.log("Fetching recipes from API...");
-
-        // Construct the URL for the request with all query parameters
-        const equipmentParam = userEquipment.length > 0 ? `&userEquipment=${encodeURIComponent(userEquipment.join(","))}` : "";
-        const url = `${API_BASE_URL}/get-recipes?breakfast=${breakfastCount}&lunch=${lunchCount}&dinner=${dinnerCount}${equipmentParam}`;
-        console.log("Constructed API URL:", url);  // Debugging log for URL
-
-        const response = await fetch(url);
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-
-        const data = await response.json();
-
-        console.log("API response for recipes:", data);  // Debugging log
-
-        if (!data.success || !Array.isArray(data.recipes)) {
-            console.error("Failed to fetch recipes or invalid data format.");
-            return [];
-        }
-
-        return data.recipes;
-    } catch (error) {
-        console.error("Error fetching viable recipes:", error);
-        return [];
-    }
-}
-
 // Handle form submission
-document.getElementById("meal-preferences-form").addEventListener("submit", async (event) => {
+async function handleSubmit(event) {
     event.preventDefault();
-
-    const breakfastCount = parseInt(document.getElementById("breakfast").value, 10);
-    const lunchCount = parseInt(document.getElementById("lunch").value, 10);
-    const dinnerCount = parseInt(document.getElementById("dinner").value, 10);
-
-    console.log("Breakfast Count:", breakfastCount, "Lunch Count:", lunchCount, "Dinner Count:", dinnerCount); // Debugging log
-
-    if (isNaN(breakfastCount) || isNaN(lunchCount) || isNaN(dinnerCount)) {
-        alert("Invalid input values.");
+    
+    const username = localStorage.getItem('username');
+    if (!username) {
+        alert('Please log in first');
         return;
     }
 
-    // Fetch user's saved equipment
-    const userEquipment = await fetchUserEquipment();
-    console.log("User Equipment:", userEquipment);  // Debugging log
+    // Get meal counts from form
+    const breakfastCount = document.getElementById('breakfast-count').value || "0";
+    const lunchCount = document.getElementById('lunch-count').value || "0";
+    const dinnerCount = document.getElementById('dinner-count').value || "0";
 
-    // Fetch viable recipes based on equipment and meal preferences
-    const viableRecipes = await fetchViableRecipes(breakfastCount, lunchCount, dinnerCount, userEquipment);
-    console.log("Viable Recipes:", viableRecipes);  // Debugging log
+    try {
+        // Save preferences to server
+        const response = await fetch(`${API_BASE_URL}/save-meal-preferences`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                username,
+                preferences: {
+                    breakfast: breakfastCount,
+                    lunch: lunchCount,
+                    dinner: dinnerCount
+                }
+            })
+        });
 
-    if (viableRecipes.length > 0) {
-        console.log("Saving recipes and shopping list to localStorage...");
+        if (!response.ok) {
+            throw new Error('Failed to save preferences');
+        }
 
-        localStorage.setItem("filteredRecipes", JSON.stringify(viableRecipes.recipes)); 
-        localStorage.setItem("shoppingList", JSON.stringify(viableRecipes.shoppingList)); 
-        localStorage.setItem("mealCounts", JSON.stringify({ breakfast: breakfastCount, lunch: lunchCount, dinner: dinnerCount }));
-        
-        console.log("Saved recipes to localStorage:", viableRecipes.recipes);
-        console.log("Saved shopping list to localStorage:", viableRecipes.shoppingList);
-
-        // Delay the redirect to ensure localStorage is updated
-        setTimeout(() => {
-            window.location.href = "./recipes.html";
-        }, 500);  // Adjust the time delay if necessary
-
-    } else {
-        alert("No recipes available that match your meal preferences and equipment.");
+        // Redirect to recipes page
+        window.location.href = 'recipes.html';
+    } catch (error) {
+        console.error('Error saving preferences:', error);
+        alert('Failed to save preferences. Please try again.');
     }
-});
-
+}
 
 // Pre-fill the dropdowns with existing meal preferences
 document.addEventListener("DOMContentLoaded", async () => {

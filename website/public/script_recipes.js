@@ -1,10 +1,6 @@
 // Retrieve the logged-in user from localStorage
 const loggedInUser = localStorage.getItem("loggedInUser");
 
-// Retrieve stored recipes and shopping list from localStorage
-const viableRecipes = localStorage.getItem("filteredRecipes") ? JSON.parse(localStorage.getItem("filteredRecipes")) : [];
-const storedShoppingList = JSON.parse(localStorage.getItem("shoppingList")) || [];
-
 if (loggedInUser) {
     // Fetch the user's meal preferences from the backend
     fetch(`${API_BASE_URL}/get-meal-preferences?username=${loggedInUser}`)
@@ -13,22 +9,21 @@ if (loggedInUser) {
             if (data.success) {
                 const { breakfast, lunch, dinner } = data.preferences;
 
-                // ** Update the preferences header dynamically**
+                // Update the preferences header dynamically
                 const preferencesHeader = document.getElementById("preferences-header");
                 if (preferencesHeader) {
                     preferencesHeader.innerText = `Preferences for: ${loggedInUser}`;
                 }
 
-                // ** Update meal info dynamically based on fetched data**
+                // Update meal info dynamically based on fetched data
                 const mealInfo = document.getElementById("meal-info");
                 if (mealInfo) {
                     mealInfo.innerText = `For this week, ${loggedInUser} wants ${breakfast} breakfast(s), ${lunch} lunch(es), and ${dinner} dinner(s).`;
                 }
 
-                // ** Call displayRecipes with pre-fetched recipes**
-                displayRecipes(viableRecipes, storedShoppingList);
+                // Generate and display recipes based on preferences
+                generateAndDisplayRecipes();
             } else {
-                // If there's an issue fetching preferences, display an error
                 const mealInfo = document.getElementById("meal-info");
                 if (mealInfo) {
                     mealInfo.innerText = "Error retrieving meal preferences. Please try again.";
@@ -36,21 +31,15 @@ if (loggedInUser) {
             }
         })
         .catch((error) => {
-            // Handle any errors during the fetch
             const mealInfo = document.getElementById("meal-info");
             if (mealInfo) {
                 mealInfo.innerText = "An error occurred while fetching data. Please try again later.";
             }
             console.error(error);
         });
-} 
-else {
-    // If no user is logged in, prompt to log in
-    const mealInfo = document.getElementById("meal-info");
-    if (mealInfo) {
-        mealInfo.innerText = "Please log in first.";
-    }
-    window.location.href = "login_page.html";  // Redirect to login page if no logged-in user
+} else {
+    // If no user is logged in, redirect to login page
+    window.location.href = "login_page.html";
 }
 
 // Function to display recipes and shopping list
@@ -110,3 +99,93 @@ function displayRecipes(recipes, shoppingList) {
         mealSection.innerHTML += `<p>No recipes found for the selected preferences.</p>`;
     }
 }
+
+async function generateAndDisplayRecipes() {
+    try {
+        const username = localStorage.getItem('username');
+        if (!username) {
+            alert('Please log in first');
+            return;
+        }
+
+        // Get meal preferences from server
+        const response = await fetch(`${API_BASE_URL}/get-meal-preferences?username=${username}`);
+        if (!response.ok) {
+            throw new Error('Failed to get meal preferences');
+        }
+
+        const data = await response.json();
+        if (!data.success) {
+            throw new Error(data.message);
+        }
+
+        const { breakfast, lunch, dinner } = data.preferences;
+
+        // If no preferences set, just display saved recipes (if any)
+        if (breakfast === "0" && lunch === "0" && dinner === "0") {
+            await displaySavedRecipes();
+            return;
+        }
+
+        // Get user equipment preferences
+        const equipmentResponse = await fetch(`${API_BASE_URL}/get-preferences?username=${username}`);
+        const equipmentData = await equipmentResponse.json();
+        const userEquipment = equipmentData.success ? equipmentData.preferences : [];
+
+        // Generate recipes based on preferences
+        const recipesResponse = await fetch(
+            `${API_BASE_URL}/get-recipes?breakfast=${breakfast}&lunch=${lunch}&dinner=${dinner}&userEquipment=${userEquipment.join(',')}`
+        );
+
+        if (!recipesResponse.ok) {
+            throw new Error('Failed to generate recipes');
+        }
+
+        const recipesData = await recipesResponse.json();
+        
+        if (!recipesData.success) {
+            throw new Error(recipesData.message);
+        }
+
+        // Display the results
+        displayRecipes(recipesData.recipes, recipesData.shoppingList);
+
+    } catch (error) {
+        console.error('Error generating recipes:', error);
+        document.getElementById('recipes-list').innerHTML = '<p>Error generating recipes. Please try again.</p>';
+        document.getElementById('shopping-list').innerHTML = '<p>Error generating shopping list.</p>';
+    }
+}
+
+function displayRecipes(recipes) {
+    const recipesContainer = document.getElementById('recipes-list');
+    let html = '<h2>Your Weekly Recipes</h2>';
+    
+    recipes.forEach(recipe => {
+        html += `
+            <div class="recipe">
+                <h3>${recipe.title}</h3>
+                <button onclick="window.location.href='recipe.html?id=${recipe.id}'">View Recipe</button>
+            </div>
+        `;
+    });
+
+    recipesContainer.innerHTML = html;
+}
+
+function displayShoppingList(shoppingList) {
+    const shoppingListContainer = document.getElementById('shopping-list');
+    let html = '<h2>Shopping List</h2><ul>';
+    
+    shoppingList.forEach(item => {
+        html += `<li>${item.quantity} ${item.unit} ${item.name}</li>`;
+    });
+
+    html += '</ul>';
+    shoppingListContainer.innerHTML = html;
+}
+
+// Add event listener for page load
+document.addEventListener('DOMContentLoaded', async () => {
+    await generateAndDisplayRecipes();
+});

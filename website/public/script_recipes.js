@@ -102,14 +102,14 @@ function displayRecipes(recipes, shoppingList) {
 
 async function generateAndDisplayRecipes() {
     try {
-        const username = localStorage.getItem('username');
-        if (!username) {
+        const loggedInUser = localStorage.getItem('loggedInUser');
+        if (!loggedInUser) {
             alert('Please log in first');
             return;
         }
 
         // Get meal preferences from server
-        const response = await fetch(`${API_BASE_URL}/get-meal-preferences?username=${username}`);
+        const response = await fetch(`${API_BASE_URL}/get-meal-preferences?username=${loggedInUser}`);
         if (!response.ok) {
             throw new Error('Failed to get meal preferences');
         }
@@ -128,7 +128,7 @@ async function generateAndDisplayRecipes() {
         }
 
         // Get user equipment preferences
-        const equipmentResponse = await fetch(`${API_BASE_URL}/get-preferences?username=${username}`);
+        const equipmentResponse = await fetch(`${API_BASE_URL}/get-preferences?username=${loggedInUser}`);
         const equipmentData = await equipmentResponse.json();
         const userEquipment = equipmentData.success ? equipmentData.preferences : [];
 

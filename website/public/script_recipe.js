@@ -3,8 +3,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     const recipeId = urlParams.get("id");
 
     if (!recipeId) {
-        document.getElementById("recipe-title").innerText = "Recipe not found.";
-        return;
+        alert('No recipe ID provided');
+        window.location.href = './recipes.html';
     }
 
     try {
@@ -12,27 +12,38 @@ document.addEventListener("DOMContentLoaded", async () => {
         const data = await response.json();
 
         if (data.success) {
-            document.getElementById("recipe-title").innerText = data.recipe.title;
-            document.getElementById("recipe-instructions").innerText = data.recipe.instructions;
+            const recipe = data.recipe;
+            
+            document.getElementById("recipe-title").innerText = recipe.title;
+            
+            const formattedInstructions = recipe.instructions
+                .split(';')
+                .map(instruction => instruction.trim())
+                .filter(instruction => instruction.length > 0)
+                .join('\n');
+            
+            document.getElementById("recipe-instructions").innerText = formattedInstructions;
 
             const ingredientsList = document.getElementById("recipe-ingredients");
-            data.recipe.ingredients.forEach(ingredient => {
+            recipe.ingredients.forEach(ingredient => {
                 const li = document.createElement("li");
-                li.innerText = `${ingredient.name}: ${ingredient.quantity} ${ingredient.unit}`;
+                li.textContent = `${ingredient.quantity} ${ingredient.unit} ${ingredient.name}`;
                 ingredientsList.appendChild(li);
             });
 
             const equipmentList = document.getElementById("recipe-equipment");
-            data.recipe.equipment.forEach(equipment => {
+            recipe.equipment.forEach(equipment => {
                 const li = document.createElement("li");
-                li.innerText = equipment;
+                li.textContent = equipment;
                 equipmentList.appendChild(li);
             });
         } else {
-            document.getElementById("recipe-title").innerText = "Recipe not found.";
+            alert('Failed to load recipe');
+            window.location.href = './recipes.html';
         }
     } catch (error) {
-        console.error("Error fetching recipe:", error);
-        document.getElementById("recipe-title").innerText = "Failed to load recipe.";
+        console.error('Error:', error);
+        alert('Error loading recipe');
+        window.location.href = './recipes.html';
     }
 });

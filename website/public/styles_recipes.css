@@ -27,7 +27,6 @@ h3, ul {
 /* New styles for recipe links */
 .recipe-link {
     text-decoration: none;
-    color: white;  /* Match the body text color */
     cursor: pointer;
 }
 

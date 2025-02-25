@@ -539,8 +539,8 @@ app.post("/send-email", async (req, res) => {
     const transporter = nodemailer.createTransport({
         service: "gmail",
         auth: {
-            user: "justenm12@gmail.com", // Replace with your email
-            pass: "mfjn nnnr jprb hxmb" // nodemailer google password
+            user: "justenm12@gmail.com",
+            pass: "mfjn nnnr jprb hxmb"
         }
     });
     
@@ -548,7 +548,7 @@ app.post("/send-email", async (req, res) => {
         <h2>Your Recipes</h2>
         <ul>
             ${recipes.map(recipe => 
-                `<li><a href="recipe.html?id=${recipe.id}">${recipe.title}</a></li>`
+                `<li><a href="https://justenholl.github.io/DiningHoll/website/public/recipe.html?id=${recipe.id}">${recipe.title}</a></li>`
             ).join("")}
         </ul>
 
@@ -558,7 +558,7 @@ app.post("/send-email", async (req, res) => {
 
     const mailOptions = {
         from: "Justenm12@gmail.com",
-        to: email, // Use the logged-in user's email
+        to: email,
         subject: "Your Recipes & Shopping List",
         html: emailContent
     };

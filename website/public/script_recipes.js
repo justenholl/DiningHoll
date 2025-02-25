@@ -90,7 +90,7 @@ function displayRecipes(recipes) {
     recipes.forEach(recipe => {
         html += `
             <div class="recipe">
-                <h3><a href="recipe.html?id=${recipe.id}" class="recipe-link">${recipe.title}</a></h3>
+                <h3><a href="${BASE_URL}/recipe.html?id=${recipe.id}" class="recipe-link">${recipe.title}</a></h3>
             </div>
         `;
     });

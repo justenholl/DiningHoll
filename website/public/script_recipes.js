@@ -88,8 +88,7 @@ function displayRecipes(recipes) {
     recipes.forEach(recipe => {
         html += `
             <div class="recipe">
-                <h3>${recipe.title}</h3>
-                <button onclick="window.location.href='recipe.html?id=${recipe.id}'">View Recipe</button>
+                <h3><a href="recipe.html?id=${recipe.id}" class="recipe-link">${recipe.title}</a></h3>
             </div>
         `;
     });
@@ -107,4 +106,46 @@ function displayShoppingList(shoppingList) {
 
     html += '</ul>';
     shoppingListContainer.innerHTML = html;
+}
+
+// Add this function to handle email sending
+async function sendEmail() {
+    const loggedInUser = localStorage.getItem("loggedInUser");
+    if (!loggedInUser) {
+        alert("Please log in first");
+        return;
+    }
+
+    try {
+        // Get the current recipes and shopping list from the page
+        const recipes = Array.from(document.querySelectorAll('.recipe h3 a')).map(a => ({
+            id: new URLSearchParams(new URL(a.href).search).get('id'),
+            title: a.textContent
+        }));
+
+        const shoppingItems = Array.from(document.querySelectorAll('#shopping-list li')).map(li => li.textContent);
+
+        // Send to the server
+        const response = await fetch(`${API_BASE_URL}/send-email`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                email: loggedInUser,
+                recipes: recipes,
+                shoppingList: shoppingItems
+            })
+        });
+
+        const data = await response.json();
+        if (data.success) {
+            alert('Email sent successfully!');
+        } else {
+            throw new Error(data.message || 'Failed to send email');
+        }
+    } catch (error) {
+        console.error('Error sending email:', error);
+        alert('Failed to send email. Please try again.');
+    }
 }

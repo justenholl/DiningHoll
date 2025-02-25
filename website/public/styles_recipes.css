@@ -23,3 +23,15 @@ h3, ul {
     text-align: left;
     font-weight: normal;
 }
+
+/* New styles for recipe links */
+.recipe-link {
+    text-decoration: none;
+    color: white;  /* Match the body text color */
+    cursor: pointer;
+}
+
+.recipe-link:hover {
+    text-decoration: underline;
+    color: #66b3ff;  /* Light blue that works well with dark background */
+}

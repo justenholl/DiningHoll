@@ -83,6 +83,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 function displayRecipes(recipes) {
     const recipesContainer = document.getElementById('recipes-list');
+    console.log("Displaying recipes:", recipes); // Debug log
+    
     let html = '<h2>Your Weekly Recipes</h2>';
     
     recipes.forEach(recipe => {
@@ -110,7 +112,10 @@ function displayShoppingList(shoppingList) {
 
 // Add this function to handle email sending
 async function sendEmail() {
+    console.log("Send email function called"); // Debug log
     const loggedInUser = localStorage.getItem("loggedInUser");
+    console.log("User email:", loggedInUser); // Debug log
+    
     if (!loggedInUser) {
         alert("Please log in first");
         return;
@@ -122,8 +127,10 @@ async function sendEmail() {
             id: new URLSearchParams(new URL(a.href).search).get('id'),
             title: a.textContent
         }));
+        console.log("Collected recipes:", recipes); // Debug log
 
         const shoppingItems = Array.from(document.querySelectorAll('#shopping-list li')).map(li => li.textContent);
+        console.log("Collected shopping items:", shoppingItems); // Debug log
 
         // Send to the server
         const response = await fetch(`${API_BASE_URL}/send-email`, {
@@ -139,6 +146,8 @@ async function sendEmail() {
         });
 
         const data = await response.json();
+        console.log("Server response:", data); // Debug log
+        
         if (data.success) {
             alert('Email sent successfully!');
         } else {

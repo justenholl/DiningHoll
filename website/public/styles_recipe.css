@@ -23,3 +23,10 @@ h3, ul {
     text-align: left;
     font-weight: normal;
 }
+
+#recipe-instructions {
+    white-space: pre-line;  /* Preserves line breaks */
+    text-align: left;
+    margin: 20px;
+    line-height: 1.5;  /* Adds some spacing between lines */
+}

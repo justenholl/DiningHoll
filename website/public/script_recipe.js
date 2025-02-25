@@ -20,6 +20,12 @@ document.addEventListener("DOMContentLoaded", async () => {
                 .split(';')
                 .map(instruction => instruction.trim())
                 .filter(instruction => instruction.length > 0)
+                .map(instruction => {
+                    if (/^\d+\./.test(instruction)) {
+                        return instruction;
+                    }
+                    return instruction;
+                })
                 .join('\n');
             
             document.getElementById("recipe-instructions").innerText = formattedInstructions;

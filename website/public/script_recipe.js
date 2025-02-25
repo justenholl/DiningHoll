@@ -16,19 +16,17 @@ document.addEventListener("DOMContentLoaded", async () => {
             
             document.getElementById("recipe-title").innerText = recipe.title;
             
-            const formattedInstructions = recipe.instructions
-                .split(';')
-                .map(instruction => instruction.trim())
-                .filter(instruction => instruction.length > 0)
-                .map(instruction => {
-                    if (/^\d+\./.test(instruction)) {
-                        return instruction;
-                    }
-                    return instruction;
-                })
-                .join('\n');
-            
-            document.getElementById("recipe-instructions").innerText = formattedInstructions;
+            const instructionsContainer = document.getElementById("recipe-instructions");
+            instructionsContainer.innerHTML = `
+                <h2>Instructions</h2>
+                <div class="instructions-text">
+                    ${recipe.instructions
+                        .split(';')
+                        .map(instruction => instruction.trim())
+                        .filter(instruction => instruction.length > 0)
+                        .join('\n')}
+                </div>
+            `;
 
             const ingredientsList = document.getElementById("recipe-ingredients");
             recipe.ingredients.forEach(ingredient => {

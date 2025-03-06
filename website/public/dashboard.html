@@ -13,9 +13,21 @@
     <h1>Dining Holl</h1>
     <p id="welcome-message">You're logged in successfully.</p>
     
-    <!-- Buttons with data-page attributes -->
-    <button data-page="equipment.html">Equipment Preferences</button>
-    <button data-page="generate.html">Generate Week's Meals</button>
-    <button data-page="add_recipe.html">Add Recipes</button>
+    <div class="button-container">
+        <div class="button-section">
+            <button data-page="equipment.html">Equipment Preferences</button>
+            <p class="button-description">Set up your kitchen by selecting the equipment you have available.</p>
+        </div>
+
+        <div class="button-section">
+            <button data-page="generate.html">Generate Week's Meals</button>
+            <p class="button-description">Choose how many meals you want for the week and we'll create a personalized shopping list.</p>
+        </div>
+
+        <div class="button-section">
+            <button data-page="add_recipe.html">Add Recipes</button>
+            <p class="button-description">Share your favorite recipes with the community.</p>
+        </div>
+    </div>
 </body>
 </html>

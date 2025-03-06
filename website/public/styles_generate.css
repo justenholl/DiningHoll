@@ -38,3 +38,9 @@ input[type="submit"] {
 fieldset > div {
     margin: 10px 0; /* Space between rows */
 }
+
+.button-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
